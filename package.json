@@ -14,6 +14,7 @@
 		"dev:frontend": "pnpm --filter ./compesn-frontend dev",
 		"dev:backend": "pnpm --filter ./compesn-backend dev",
 		"lint": "pnpm -r lint",
+		"postinstall": "pnpm build:shared",
 		"start:frontend": "pnpm --filter ./compesn-frontend start",
 		"start:backend": "pnpm --filter ./compesn-backend start",
 		"typecheck": "pnpm -r typecheck",
