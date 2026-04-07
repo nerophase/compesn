@@ -4,7 +4,9 @@
 	"private": true,
 	"main": "./dist/common/schemas/index.js",
 	"types": "./dist/common/schemas/index.d.ts",
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"exports": {
 		"./common/schemas": {
 			"types": "./dist/common/schemas/index.d.ts",
