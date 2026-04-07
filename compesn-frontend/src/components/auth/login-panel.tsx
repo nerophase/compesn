@@ -4,8 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import DiscordIcon from "public/imgs/discord-icon.png";
-import RiotIcon from "public/imgs/riot-icon.png";
 
 interface LoginPanelProps {
 	callbackUrl?: string;
@@ -45,7 +43,7 @@ export default function LoginPanel({ callbackUrl = "/", error }: LoginPanelProps
 					>
 						<Image
 							alt=""
-							src={DiscordIcon}
+							src="/imgs/discord-icon.png"
 							width={24}
 							height={24}
 							className="mr-2 rounded-md"
@@ -60,7 +58,7 @@ export default function LoginPanel({ callbackUrl = "/", error }: LoginPanelProps
 					>
 						<Image
 							alt=""
-							src={RiotIcon}
+							src="/imgs/riot-icon.png"
 							width={24}
 							height={24}
 							className="mr-2 rounded-md"
