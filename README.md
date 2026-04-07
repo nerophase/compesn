@@ -21,6 +21,13 @@ pnpm install
 
 Installing from the root also triggers `compesn-shared` to build its package output, so clean checkouts have the shared artifacts available before workspace typechecks, tests, and app builds run.
 
+For local smoke builds without real secrets, seed the checked-in placeholder env files:
+
+```bash
+cp compesn-frontend/.env.example compesn-frontend/.env
+cp compesn-backend/.env.example compesn-backend/.env
+```
+
 ## Quality Gates
 
 Run all package checks from the workspace root:

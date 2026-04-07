@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Seed frontend build env
+        run: cp compesn-frontend/.env.example compesn-frontend/.env
+
       - name: Typecheck
         run: pnpm -r typecheck
 
