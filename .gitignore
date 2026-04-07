@@ -1,0 +1,11 @@
+.DS_Store
+.vscode
+.pnpm-store
+node_modules
+compesn-frontend/node_modules
+compesn-backend/node_modules
+compesn-shared/node_modules
+compesn-frontend/.next
+compesn-frontend/tsconfig.tsbuildinfo
+compesn-backend/dist
+compesn-shared/dist

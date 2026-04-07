@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "compesn-backend",
+		},
+		{
+			"path": "compesn-frontend",
+		},
+		{
+			"path": "compesn-shared",
+		},
+	],
+}

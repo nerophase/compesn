@@ -1,0 +1,56 @@
+{
+	"name": "@compesn/shared",
+	"version": "0.1.0",
+	"private": true,
+	"main": "./dist/common/schemas/index.js",
+	"types": "./dist/common/schemas/index.d.ts",
+	"files": ["dist"],
+	"exports": {
+		"./common/schemas": {
+			"types": "./dist/common/schemas/index.d.ts",
+			"default": "./dist/common/schemas/index.js"
+		},
+		"./common/schemas/*": {
+			"types": "./dist/common/schemas/*.d.ts",
+			"default": "./dist/common/schemas/*.js"
+		},
+		"./common/types/*": {
+			"types": "./dist/common/types/*.d.ts",
+			"default": "./dist/common/types/*.js"
+		},
+		"./draft/champions": {
+			"types": "./dist/draft/champions.d.ts",
+			"default": "./dist/draft/champions.js"
+		},
+		"./draft/turns": {
+			"types": "./dist/draft/turns.d.ts",
+			"default": "./dist/draft/turns.js"
+		},
+		"./logging": {
+			"types": "./dist/logging/index.d.ts",
+			"default": "./dist/logging/index.js"
+		},
+		"./rooms/cache": {
+			"types": "./dist/rooms/cache.d.ts",
+			"default": "./dist/rooms/cache.js"
+		},
+		"./utils/id": {
+			"types": "./dist/utils/id.d.ts",
+			"default": "./dist/utils/id.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"typecheck": "tsc --noEmit -p tsconfig.json",
+		"lint": "node -e \"process.exit(0)\"",
+		"test": "node --test"
+	},
+	"dependencies": {
+		"drizzle-orm": "0.44.7",
+		"zod": "^3.25.76"
+	},
+	"devDependencies": {
+		"@types/node": "^24.12.2",
+		"typescript": "^5.9.3"
+	}
+}
