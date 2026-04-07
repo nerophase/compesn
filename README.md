@@ -19,7 +19,7 @@ Canonical repository URL: `https://github.com/nerophase/compesn.git`
 pnpm install
 ```
 
-The root install also builds `compesn-shared` so clean checkouts have the shared package output available before workspace typechecks, tests, and app builds run.
+Installing from the root also triggers `compesn-shared` to build its package output, so clean checkouts have the shared artifacts available before workspace typechecks, tests, and app builds run.
 
 ## Quality Gates
 
