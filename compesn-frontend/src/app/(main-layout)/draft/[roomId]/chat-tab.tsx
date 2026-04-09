@@ -57,22 +57,22 @@ export default function ChatTab({
 			</div>
 
 			{player.team && (
-				<div className="flex-shrink-0 p-2 border-t border-white/10">
+				<div className="shrink-0 p-2 border-t border-white/10">
 					<div className="flex gap-2">
 						<input
 							type="text"
 							ref={messageInputRef}
-							placeholder="Type a message (ctrl + enter: send to all)"
+							placeholder="Type a message (shift + enter: send to all)"
 							className="flex-1 px-2 py-1 text-sm bg-gray-800/50 backdrop-blur-md border border-gray-600/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 transition-colors"
 							onKeyDown={(e) => {
 								if (e.key === "Enter") {
-									sendMessage(e.ctrlKey);
+									sendMessage(e.shiftKey);
 								}
 							}}
 						/>
 						<button
 							onClick={() => sendMessage()}
-							title="Enter: Send to team | Ctrl + Enter: Send to all"
+							title="Enter: Send to team | Shift + Enter: Send to all"
 							className="px-2 py-1 text-sm bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition-colors"
 						>
 							<SendIcon size={14} />

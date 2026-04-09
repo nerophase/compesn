@@ -27,6 +27,12 @@ Run the frontend in development:
 pnpm --filter ./compesn-frontend dev
 ```
 
+Run the frontend with Turbopack (opt-in only):
+
+```bash
+pnpm --filter ./compesn-frontend dev:turbo
+```
+
 Build the frontend for production:
 
 ```bash
@@ -45,6 +51,8 @@ pnpm --filter ./compesn-frontend lint
 
 - The frontend consumes `@compesn/shared` through the workspace, not a sibling `file:` dependency.
 - `next.config.ts` is configured for a monorepo checkout and points file tracing at the workspace root.
+- Development defaults to Webpack (`pnpm dev`) because Turbopack currently regresses first compile time in this monorepo.
+- Use `pnpm dev:turbo` only when explicitly testing Turbopack behavior.
 - The production build uses `next build --webpack` for stability in this workspace.
 - Fonts are loaded from local files in `src/app/fonts` so builds do not depend on Google Fonts network access.
 
@@ -106,6 +114,7 @@ Useful scripts:
 
 ```bash
 pnpm dev
+pnpm dev:turbo
 pnpm build
 pnpm start
 pnpm lint
