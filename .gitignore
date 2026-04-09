@@ -1,6 +1,7 @@
 .DS_Store
 .vscode
 .pnpm-store
+.env
 node_modules
 compesn-frontend/node_modules
 compesn-backend/node_modules

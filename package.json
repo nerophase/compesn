@@ -18,5 +18,11 @@
 		"start:backend": "pnpm --filter ./compesn-backend start",
 		"typecheck": "pnpm -r typecheck",
 		"test": "pnpm -r test"
+	},
+	"dependencies": {
+		"drizzle-kit": "^0.31.10"
+	},
+	"devDependencies": {
+		"@types/node": "^25.5.2"
 	}
 }
