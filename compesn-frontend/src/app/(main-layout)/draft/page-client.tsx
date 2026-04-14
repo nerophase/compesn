@@ -1,8 +1,8 @@
 "use client";
 
-import { TChampion } from "@compesn/shared/common/types/champion";
+import { TChampion } from "@compesn/shared/types/champion";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, UseFormReturn } from "react-hook-form";
+import { useForm, UseFormReturn, type PathValue } from "react-hook-form";
 import { TeamNameInput } from "@/components/team-name-input";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
@@ -17,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useMemo, useState } from "react";
 import { TURNS_SORTED_BY_CONFIG_ORDER } from "@/constants/turns";
 import { ORDINAL_NUMBERS } from "@/constants/ordinalNumbers";
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
+import { TTeamColor } from "@compesn/shared/types/team-color";
 import { useSession } from "next-auth/react";
 import { Users, Shield, Gamepad2, Sparkles, Plus, XIcon } from "lucide-react";
 import ChampionsModal from "@/components/champions-modal";
@@ -26,16 +26,19 @@ import { getChampionSmallImgURL } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { ROOM_DEFAULT_SETTINGS } from "@/constants/room";
 import { useRouter } from "next/navigation";
-import { TDraftMode } from "@compesn/shared/common/types/draft-mode";
+import { TDraftMode } from "@compesn/shared/types/draft-mode";
 import { isProfane } from "@/utils/sanitizer";
 import { toast } from "sonner";
-import { TRoom } from "@compesn/shared/common/types/room";
-import { TUserTeam } from "@compesn/shared/common/types/user-team";
-import { TTurn } from "@compesn/shared/common/types/turn";
+import { TRoom } from "@compesn/shared/types/room";
+import { TUserTeam } from "@compesn/shared/types/user-team";
+import { TTurn } from "@compesn/shared/types/turn";
 import { RoomSettingsSchema } from "@/trpc/routers/rooms/rooms.schema";
 import { useTRPC } from "@/trpc/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { TTeam } from "@compesn/shared/common/schemas";
+import { TTeam } from "@compesn/shared/schemas";
+
+type RoomSettings = z.infer<typeof RoomSettingsSchema>;
+type TeamNameField = "blueTeamName" | "redTeamName";
 
 export default function RoomSettingsPage({}: { room: TRoom | undefined }) {
 	const trpc = useTRPC();
@@ -56,7 +59,7 @@ export default function RoomSettingsPage({}: { room: TRoom | undefined }) {
 
 	const { data: champions = [] } = useQuery(trpc.champions.getAll.queryOptions());
 
-	const form = useForm<z.infer<typeof RoomSettingsSchema>>({
+	const form = useForm<RoomSettings>({
 		resolver: zodResolver(RoomSettingsSchema),
 		defaultValues: !blocked
 			? {
@@ -81,7 +84,7 @@ export default function RoomSettingsPage({}: { room: TRoom | undefined }) {
 		}),
 	);
 
-	async function onSubmit(values: z.infer<typeof RoomSettingsSchema>) {
+	async function onSubmit(values: RoomSettings) {
 		if (!values.blueTeamName) {
 			values.blueTeamName = "Team 1";
 		}
@@ -372,10 +375,10 @@ function TeamConfig({
 	userTeams,
 	blocked = false,
 }: {
-	form: UseFormReturn<z.infer<typeof RoomSettingsSchema>>;
+	form: UseFormReturn<RoomSettings>;
 	turns: TTurn[];
-	teamFormName: any;
-	otherTeamFormName: any;
+	teamFormName: TeamNameField;
+	otherTeamFormName: TeamNameField;
 	team: TTeamColor;
 	teams: TTeam[];
 	userTeams: TTeam[];
@@ -547,7 +550,7 @@ function TeamConfig({
 }
 
 // Custom Gaming Button Component
-function GameSettingButtons({
+function GameSettingButtons<TName extends keyof RoomSettings>({
 	form,
 	label,
 	name,
@@ -555,18 +558,18 @@ function GameSettingButtons({
 	blocked = false,
 	onChange,
 }: {
-	form: UseFormReturn<z.infer<typeof RoomSettingsSchema>>;
+	form: UseFormReturn<RoomSettings>;
 	label: string;
-	name: keyof z.infer<typeof RoomSettingsSchema>;
-	options: { label: string; value: any }[];
+	name: TName;
+	options: Array<{ label: string; value: RoomSettings[TName] }>;
 	blocked?: boolean;
-	onChange?: (value: any) => void;
+	onChange?: (value: RoomSettings[TName]) => void;
 }) {
 	const currentValue = form.watch(name);
 
-	const handleButtonClick = (value: any) => {
+	const handleButtonClick = (value: RoomSettings[TName]) => {
 		if (blocked) return;
-		form.setValue(name, value);
+		form.setValue(name, value as PathValue<RoomSettings, TName>);
 		if (onChange) {
 			onChange(value);
 		}

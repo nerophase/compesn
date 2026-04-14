@@ -2,7 +2,16 @@ import { env } from "@/environment";
 import fs from "fs";
 import path from "path";
 import axios from "axios";
-import { TChampion } from "@compesn/shared/common/types/champion";
+import { TChampion } from "@compesn/shared/types/champion";
+
+type DataDragonChampion = {
+	name: string;
+	tags: TChampion["tags"];
+};
+
+type DataDragonChampionFile = {
+	data: Record<string, DataDragonChampion>;
+};
 
 const getChampions: () => TChampion[] = () => {
 	if (!fs.existsSync(env.CHAMPIONS_FILE_PATH)) {
@@ -95,9 +104,10 @@ const addChampionShortImg = async (
 
 const updateChampionsFromDataDragonFile = async () => {
 	const dataDragonFilePath = path.join(process.cwd(), "champion.json");
-	const newChampions = JSON.parse(fs.readFileSync(dataDragonFilePath).toString()).data;
-
-	const oldChampions = getChampions() as any;
+	const newChampions = (
+		JSON.parse(fs.readFileSync(dataDragonFilePath).toString()) as DataDragonChampionFile
+	).data;
+	const oldChampions = getChampions();
 
 	for (const champ of Object.keys(newChampions)) {
 		const champion = oldChampions.find((e: TChampion) => e.fileName === champ);
@@ -107,7 +117,7 @@ const updateChampionsFromDataDragonFile = async () => {
 		} else {
 			oldChampions.push({
 				name: newChampions[champ].name,
-				filename: champ,
+				fileName: champ,
 				roles: [],
 				tags: newChampions[champ].tags,
 			});
@@ -116,7 +126,7 @@ const updateChampionsFromDataDragonFile = async () => {
 
 	fs.writeFileSync(
 		env.CHAMPIONS_FILE_PATH,
-		JSON.stringify(oldChampions.sort((a: any, b: any) => a.name.localeCompare(b.name))),
+		JSON.stringify(oldChampions.sort((a, b) => a.name.localeCompare(b.name))),
 	);
 };
 

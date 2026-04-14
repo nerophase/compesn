@@ -1,4 +1,4 @@
-import { TUserRole } from "@compesn/shared/common/types/user-role";
+import { TUserRole } from "@compesn/shared/types/user-role";
 import { randomUUID } from "crypto";
 
 export function verifyRefresh(userId: string, token: string) {

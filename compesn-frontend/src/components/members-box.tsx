@@ -6,8 +6,8 @@ import { cn, draftTeamTextColor, sortRoomMembers } from "@/lib/utils";
 import { PlusIcon } from "lucide-react";
 import { memo, useMemo } from "react";
 import { TJoinTeamFunction } from "@/app/(main-layout)/draft/[roomId]/page";
-import { TRoomMember } from "@compesn/shared/common/types/room-member";
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
+import { TRoomMember } from "@compesn/shared/types/room-member";
+import { TTeamColor } from "@compesn/shared/types/team-color";
 
 const MembersBox = memo(function MembersBox({ joinTeam }: { joinTeam: TJoinTeamFunction }) {
 	const { player, room, activeDraft } = useDraft();

@@ -1,12 +1,12 @@
-import { TChampion } from "@compesn/shared/common/types/champion";
+import { TChampion } from "@compesn/shared/types/champion";
 import { useDeferredValue, useMemo, useState } from "react";
-import { TTag } from "@compesn/shared/common/types/tag";
+import { TTag } from "@compesn/shared/types/tag";
 import { CHAMPIONS } from "@/constants/champions-db/champions-data";
 import { CheckIcon, SearchIcon, XIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { getChampionImage } from "@/utils/champions";
-import { TDraftTeam } from "@compesn/shared/common/types/draft-team";
+import { TDraftTeam } from "@compesn/shared/types/draft-team";
 
 // Champion role icons (using emoji for now, can be replaced with proper icons)
 const tagIcons: Record<TTag, string> = {

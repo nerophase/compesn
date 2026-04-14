@@ -10,6 +10,7 @@ import {
 	ScrimListByUserIdSchema,
 	ScrimListingsSchema,
 	ScrimQueueSchema,
+	RegionSchema,
 	getRankTierValue,
 	getRankDivisionValue,
 } from "@/trpc/routers/scrims/scrims.schema";
@@ -23,7 +24,7 @@ import {
 	TScrimInsert,
 	TScrimParticipantInsert,
 	TScrim,
-} from "@compesn/shared/common/schemas";
+} from "@compesn/shared/schemas";
 import { TRPCError } from "@trpc/server";
 import { logError } from "@compesn/shared/logging";
 import { createNotification } from "@/lib/notifications";
@@ -38,6 +39,7 @@ import {
 } from "./scrim-status";
 import { updateStatusProcedure } from "./update-scrim-status-procedure";
 import { listScrimsProcedure } from "./list-scrims-procedure";
+import { z } from "zod";
 
 export const scrimsRouter = createTRPCRouter({
 	// Create a new scrim
@@ -339,14 +341,75 @@ export const scrimsRouter = createTRPCRouter({
 	// Cancel a scrim with reason
 	cancel: authenticatedProcedure
 		.input(ScrimCancelSchema)
-		.mutation(async ({ input, ctx }): Promise<any> => {
-			// Use the updateStatus mutation with CANCELLED status
-			return await scrimsRouter
-				.createCaller({ session: ctx.session, req: ctx.req })
-				.updateStatus({
-					scrimId: input.scrimId,
-					status: "CANCELLED",
+		.mutation(async ({ input, ctx }) => {
+			const userId = ctx.session.user.id;
+			const scrim = await db.query.scrims.findFirst({
+				where: eq(scrims.id, input.scrimId),
+				with: {
+					creatingTeam: {
+						with: {
+							members: true,
+						},
+					},
+					opponentTeam: {
+						with: {
+							members: true,
+						},
+					},
+				},
+			});
+
+			if (!scrim) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Scrim not found",
 				});
+			}
+
+			const isCreatingTeamMember = scrim.creatingTeam.members.some(
+				(member) => member.userId === userId,
+			);
+			const isOpponentTeamMember =
+				scrim.opponentTeam?.members.some((member) => member.userId === userId) ?? false;
+
+			if (!isCreatingTeamMember && !isOpponentTeamMember) {
+				throw new TRPCError({
+					code: "FORBIDDEN",
+					message: "You are not authorized to cancel this scrim",
+				});
+			}
+
+			if (!isValidScrimTransition(scrim.status, "CANCELLED")) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: `Cannot transition from ${scrim.status} to CANCELLED`,
+				});
+			}
+
+			if (
+				scrim.status === "CONFIRMED" &&
+				!canCancelConfirmedScrim(scrim.startTime)
+			) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "Cannot cancel a confirmed scrim within 2 hours of start time",
+				});
+			}
+
+			const [updatedScrim] = await db
+				.update(scrims)
+				.set({
+					status: "CANCELLED",
+					opponentTeamId: getNextOpponentTeamId("CANCELLED", scrim.opponentTeamId),
+				})
+				.where(eq(scrims.id, input.scrimId))
+				.returning();
+
+			if (redis) {
+				await redis.del("scrims:list:*");
+			}
+
+			return updatedScrim;
 		}),
 
 	// Get scrims by team ID
@@ -675,6 +738,8 @@ export const scrimsRouter = createTRPCRouter({
 
 	// Get live scrim queue for teams actively looking for scrims
 	getQueue: authenticatedProcedure.input(ScrimQueueSchema).query(async ({ input }) => {
+		type QueueRegion = z.infer<typeof RegionSchema>;
+
 		// Create cache key based on input parameters
 		const cacheKey = `scrims:queue:${JSON.stringify(input)}`;
 
@@ -707,12 +772,22 @@ export const scrimsRouter = createTRPCRouter({
 		});
 
 		// Transform to queue format
-		const queueTeams = recentOpenScrims.map((scrim) => ({
+		const queueTeams: Array<{
+			id: string;
+			name: string;
+			tag: string;
+			currentRank: string;
+			region: QueueRegion;
+			memberCount: number;
+			lookingSince: Date;
+			preferredGameModes: string[];
+			scrimId: string;
+		}> = recentOpenScrims.map((scrim) => ({
 			id: scrim.creatingTeam.id,
 			name: scrim.creatingTeam.name,
 			tag: scrim.creatingTeam.tag,
 			currentRank: "UNRANKED", // Default rank since team doesn't have currentRank field
-			region: scrim.creatingTeam.region || "NA",
+			region: (scrim.creatingTeam.region || "na") as QueueRegion,
 			memberCount: scrim.creatingTeam.members?.length || 0,
 			lookingSince: scrim.createdAt,
 			preferredGameModes: scrim.bestOf ? [`Best of ${scrim.bestOf}`] : ["Custom"],
@@ -741,9 +816,8 @@ export const scrimsRouter = createTRPCRouter({
 		}
 
 		if (input.regions && input.regions.length > 0) {
-			filteredTeams = filteredTeams.filter((team) =>
-				input.regions!.includes(team.region as any),
-			);
+			const regions = input.regions;
+			filteredTeams = filteredTeams.filter((team) => regions.includes(team.region));
 		}
 
 		// Cache the result for 30 seconds

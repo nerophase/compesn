@@ -9,6 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { AppRouter } from "@/trpc/routers/_app";
+
+type ConversationListItem = Awaited<ReturnType<AppRouter["messages"]["listConversations"]>>[number];
 
 export function FloatingChatButton() {
 	const { data: session } = useSession();
@@ -16,19 +19,22 @@ export function FloatingChatButton() {
 	const [isHovered, setIsHovered] = useState(false);
 
 	// Only query conversations if user is logged in
-	const { data: conversations } = useQuery({
-		...(trpc.messages.listConversations as any).queryOptions({
+	const { data: conversations } = useQuery(
+		trpc.messages.listConversations.queryOptions({
+			search: "",
+			type: null,
 			limit: 50,
 			offset: 0,
+		}, {
+			enabled: !!session?.user && false, // TODO: DISABLED TEMPORARILY
+			refetchInterval: 30000,
 		}),
-		enabled: !!session?.user && false, // TODO: DISABLED TEMPORARILY
-		refetchInterval: 30000, // Refetch every 30 seconds for new messages
-	});
+	);
 
 	// Count unread conversations (conversations with unread messages)
 	const unreadCount =
-		(conversations as any[])?.filter(
-			(c: any) =>
+		(conversations as ConversationListItem[] | undefined)?.filter(
+			(c) =>
 				c.lastMessage &&
 				!c.lastMessage.isRead &&
 				c.lastMessage.senderId !== session?.user?.id,

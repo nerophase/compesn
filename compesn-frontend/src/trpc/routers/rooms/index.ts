@@ -2,13 +2,13 @@ import { baseProcedure, createTRPCRouter, authenticatedProcedure } from "../../i
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createNotification } from "../../../lib/notifications";
-import { teams, usersToTeams, rooms, TRoomInsert, TRoom } from "@compesn/shared/common/schemas";
+import { teams, usersToTeams, rooms, TRoomInsert, TRoom } from "@compesn/shared/schemas";
 import { deserializeRoomCache, serializeRoomCache } from "@compesn/shared/rooms/cache";
 import { logError } from "@compesn/shared/logging";
 import { db } from "../../../lib/database/db";
 import { eq } from "drizzle-orm";
 import { RoomIdSchema, RoomSettingsSchema } from "./rooms.schema";
-import { TDraft } from "@compesn/shared/common/types/draft";
+import { TDraft } from "@compesn/shared/types/draft";
 import { redis } from "../../../lib/database/redis";
 import { generateId } from "../../../utils/password";
 import axios from "axios";
@@ -171,7 +171,7 @@ export const roomsRouter = createTRPCRouter({
 						},
 					});
 					await Promise.all(
-						users.map((user: any) =>
+						users.map((user) =>
 							createNotification(user.id, "JOIN_DRAFT", {
 								roomId: room!.id,
 								teamName: input.blueTeamName as string,
@@ -194,7 +194,7 @@ export const roomsRouter = createTRPCRouter({
 						},
 					});
 					await Promise.all(
-						users.map((user: any) =>
+						users.map((user) =>
 							createNotification(user.id, "JOIN_DRAFT", {
 								roomId: room!.id,
 								teamName: input.redTeamName as string,
@@ -211,7 +211,7 @@ export const roomsRouter = createTRPCRouter({
 	}),
 
 	update: authenticatedProcedure
-		.input(z.object({ roomId: z.string(), room: z.any() }))
+		.input(z.object({ roomId: z.string(), room: z.custom<TRoomInsert>() }))
 		.mutation(async ({ input }) => {
 			try {
 				const newRoom = (

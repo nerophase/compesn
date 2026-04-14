@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import type { TNotification } from "@compesn/shared/common/types/notification";
+import type { TNotification } from "@compesn/shared/types/notification";
+import type { SerializedNotification } from "@compesn/shared/types/realtime/socket";
 import { getNotificationLabel, generateNotificationText } from "@/lib/notification-text";
 import { socket } from "@/lib/sockets";
 import { useTRPC } from "@/trpc/client";
@@ -25,15 +26,27 @@ export function NotificationToastListener() {
 			socket.emit("notifications:join", userId);
 		};
 
-		const handleNewNotification = (notification: TNotification) => {
-			if (notification.type === "TEAM_INVITATION") {
+		const handleNewNotification = (notification: SerializedNotification) => {
+			const normalizedNotification = {
+				...notification,
+				createdAt:
+					typeof notification.createdAt === "string"
+						? new Date(notification.createdAt)
+						: notification.createdAt,
+				updatedAt:
+					typeof notification.updatedAt === "string"
+						? new Date(notification.updatedAt)
+						: notification.updatedAt,
+			} as TNotification;
+
+			if (normalizedNotification.type === "TEAM_INVITATION") {
 				void queryClient.invalidateQueries(trpc.teams.userInvites.queryOptions());
 				void queryClient.invalidateQueries(trpc.teams.userTeams.queryOptions());
 				void queryClient.invalidateQueries(trpc.teams.userTeamsFlat.queryOptions());
 			}
 
-			toast.info(getNotificationLabel(notification.type), {
-				description: generateNotificationText(notification, {}),
+			toast.info(getNotificationLabel(normalizedNotification.type), {
+				description: generateNotificationText(normalizedNotification, {}),
 			});
 		};
 

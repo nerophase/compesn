@@ -1,6 +1,6 @@
 import useDraft from "@/hooks/use-draft";
 import { cleanString } from "@/utils/sanitizer";
-import { TMessage } from "@compesn/shared/common/types/message";
+import { TMessage } from "@compesn/shared/types/message";
 import { SendIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 

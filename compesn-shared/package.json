@@ -2,23 +2,23 @@
 	"name": "@compesn/shared",
 	"version": "0.1.0",
 	"private": true,
-	"main": "./dist/common/schemas/index.js",
-	"types": "./dist/common/schemas/index.d.ts",
+	"main": "./dist/schemas/index.js",
+	"types": "./dist/schemas/index.d.ts",
 	"files": [
 		"dist"
 	],
 	"exports": {
-		"./common/schemas": {
-			"types": "./dist/common/schemas/index.d.ts",
-			"default": "./dist/common/schemas/index.js"
+		"./schemas": {
+			"types": "./dist/schemas/index.d.ts",
+			"default": "./dist/schemas/index.js"
 		},
-		"./common/schemas/*": {
-			"types": "./dist/common/schemas/*.d.ts",
-			"default": "./dist/common/schemas/*.js"
+		"./schemas/*": {
+			"types": "./dist/schemas/*.d.ts",
+			"default": "./dist/schemas/*.js"
 		},
-		"./common/types/*": {
-			"types": "./dist/common/types/*.d.ts",
-			"default": "./dist/common/types/*.js"
+		"./types/*": {
+			"types": "./dist/types/*.d.ts",
+			"default": "./dist/types/*.js"
 		},
 		"./draft/champions": {
 			"types": "./dist/draft/champions.d.ts",

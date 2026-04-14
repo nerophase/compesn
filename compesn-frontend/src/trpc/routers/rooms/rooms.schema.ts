@@ -1,7 +1,7 @@
-import { EDraftMode } from "@compesn/shared/common/types/draft-mode";
-import { ERole } from "@compesn/shared/common/types/role";
-import { ETag } from "@compesn/shared/common/types/tag";
-import { EPickType } from "@compesn/shared/common/types/tournament";
+import { EDraftMode } from "@compesn/shared/types/draft-mode";
+import { ERole } from "@compesn/shared/types/role";
+import { ETag } from "@compesn/shared/types/tag";
+import { EPickType } from "@compesn/shared/types/tournament";
 import { z } from "zod";
 
 export const RoomIdSchema = z.object({ roomId: z.string() });

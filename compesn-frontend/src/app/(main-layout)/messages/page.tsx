@@ -34,7 +34,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import NewConversationModal from "./new-conversation-modal";
 import { socketChat } from "@/lib/sockets";
-import { TMessage, TUser } from "@compesn/shared/common/schemas";
+import { TMessage, TUser } from "@compesn/shared/schemas";
+import type { SerializedPrivateMessage } from "@compesn/shared/types/realtime/socket";
 import { AppRouter } from "@/trpc/routers/_app";
 import { toast } from "sonner";
 
@@ -149,8 +150,12 @@ export default function MessagesPage() {
 
 	const sendFriendRequestMutation = useMutation(
 		trpc.friends.sendRequest.mutationOptions({
-			onSuccess: (result: any) => {
-				toast.success(result?.autoAccepted ? "Friend request accepted." : "Friend request sent.");
+			onSuccess: (result) => {
+				toast.success(
+					"autoAccepted" in result && result.autoAccepted
+						? "Friend request accepted."
+						: "Friend request sent.",
+				);
 				void queryClient.invalidateQueries({
 					queryKey: [["friends", "getRelationship"]],
 				});
@@ -208,7 +213,7 @@ export default function MessagesPage() {
 	};
 
 	const normalizeMessageDates = useCallback(
-		(msg: TMessage & { sender: TUser }): TMessage & { sender: TUser } => {
+		(msg: SerializedPrivateMessage): TMessage & { sender: TUser } => {
 			return {
 				...msg,
 				createdAt:
@@ -256,7 +261,7 @@ export default function MessagesPage() {
 			conversations: conversationsIds,
 		});
 
-		const handleMessage = (msg: TMessage & { sender: TUser }) => {
+		const handleMessage = (msg: SerializedPrivateMessage) => {
 			const normalizedMsg = normalizeMessageDates(msg);
 
 			if (normalizedMsg.conversationId === selectedConversationRef.current?.id) {

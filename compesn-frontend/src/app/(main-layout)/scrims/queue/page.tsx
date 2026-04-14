@@ -17,6 +17,7 @@ import { REGIONS } from "@/constants/regions";
 import { LocalizedDateTime } from "@/components/localized-datetime";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
+import type { AppRouter } from "@/trpc/routers/_app";
 
 const RANK_TIERS = [
 	"IRON",
@@ -32,30 +33,33 @@ const RANK_TIERS = [
 ] as const;
 
 type RankTier = (typeof RANK_TIERS)[number];
+type QueueTeam = Awaited<ReturnType<AppRouter["scrims"]["getQueue"]>>[number];
+type QueueRegion = QueueTeam["region"];
 
 export default function ScrimsQueuePage() {
 	const trpc = useTRPC();
 	const [filters, setFilters] = useState({
 		minRankTier: "" as RankTier | "",
 		maxRankTier: "" as RankTier | "",
-		regions: [] as string[],
+		regions: [] as QueueRegion[],
 	});
 
 	const [autoRefresh, setAutoRefresh] = useState(true);
 	const [lastRefresh, setLastRefresh] = useState(new Date());
 
 	const {
-		data: queueTeams = [],
+		data,
 		isLoading,
 		refetch,
 	} = useQuery(
 		trpc.scrims.getQueue.queryOptions({
 			...(filters.minRankTier && { minRankTier: filters.minRankTier as RankTier }),
 			...(filters.maxRankTier && { maxRankTier: filters.maxRankTier as RankTier }),
-			...(filters.regions.length > 0 && { regions: filters.regions as any }),
+			...(filters.regions.length > 0 && { regions: filters.regions }),
 			limit: 50,
 		}),
 	);
+	const queueTeams = (data ?? []) as QueueTeam[];
 
 	// Auto-refresh functionality
 	useEffect(() => {
@@ -238,7 +242,7 @@ export default function ScrimsQueuePage() {
 				</div>
 			) : queueTeams && queueTeams.length > 0 ? (
 				<div className="grid gap-4">
-					{(queueTeams as any[]).map((team: any) => (
+					{queueTeams.map((team: QueueTeam) => (
 						<Card
 							key={team.id}
 							className="bg-gray-900/50 border-cyan-500/20 hover:border-cyan-500/40 transition-colors"

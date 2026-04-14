@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-import * as schema from "@compesn/shared/common/schemas";
+import * as schema from "@compesn/shared/schemas";
 import postgres from "postgres";
 import { env } from "@/environment";
 

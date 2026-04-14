@@ -1,10 +1,10 @@
 import useDraft from "@/hooks/use-draft";
 import { getChampionImage } from "@/utils/champions";
 import { cn } from "@/lib/utils";
-import { TDraftTeam } from "@compesn/shared/common/types/draft-team";
-import { TDraftState } from "@compesn/shared/common/types/state";
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
-import { TTurn } from "@compesn/shared/common/types/turn";
+import { TDraftTeam } from "@compesn/shared/types/draft-team";
+import { TDraftState } from "@compesn/shared/types/state";
+import { TTeamColor } from "@compesn/shared/types/team-color";
+import { TTurn } from "@compesn/shared/types/turn";
 import { ShieldIcon, SwordIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 

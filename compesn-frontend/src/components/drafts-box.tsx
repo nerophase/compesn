@@ -1,4 +1,4 @@
-import { TDraftState } from "@compesn/shared/common/types/state";
+import { TDraftState } from "@compesn/shared/types/state";
 import useDraft from "@/hooks/use-draft";
 import { cn } from "@/lib/utils";
 import { memo } from "react";

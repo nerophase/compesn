@@ -2,9 +2,9 @@ import { createTRPCRouter, authenticatedProcedure } from "../../init";
 import { NotificationsListSchema, NotificationMarkAsReadSchema } from "./notifications.schema";
 import { db } from "../../../lib/database/db";
 import { and, count, desc, eq, inArray } from "drizzle-orm";
-import { notifications } from "@compesn/shared/common/schemas/notifications";
-import { teams } from "@compesn/shared/common/schemas/teams";
-import type { TNotification } from "@compesn/shared/common/types/notification";
+import { notifications } from "@compesn/shared/schemas/notifications";
+import { teams } from "@compesn/shared/schemas/teams";
+import type { TNotification } from "@compesn/shared/types/notification";
 
 function getTeamIdFromNotification(notification: TNotification): string | null {
 	const data = notification.data;

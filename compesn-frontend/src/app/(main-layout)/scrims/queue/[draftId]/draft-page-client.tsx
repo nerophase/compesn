@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { socket } from "@/lib/sockets";
+import { env } from "@/environment";
 import LoaderSpin from "@/components/loader-spin";
 import { DraftHeader } from "./draft-header";
 import { DraftTeamSection } from "./draft-team-section";
@@ -13,8 +13,21 @@ import { ChampionGrid } from "./champion-grid";
 import { DraftTimer } from "./draft-timer";
 import { DraftExpiredModal } from "./draft-expired-modal";
 import { DraftCompletedModal } from "./draft-completed-modal";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
+import { io } from "socket.io-client";
+import type {
+	QueueDraft,
+	QueueDraftActionType,
+	QueueDraftCompletedPayload,
+	QueueDraftMember,
+	QueueDraftSide,
+	QueueDraftUpdatePayload,
+} from "./draft-types";
+
+const queueDraftSocket = io(env.NEXT_PUBLIC_SERVER_URL, {
+	autoConnect: false,
+});
 
 interface DraftPageClientProps {
 	draftId: string;
@@ -34,17 +47,20 @@ export function DraftPageClient({ draftId }: DraftPageClientProps) {
 
 	// tRPC queries and mutations
 	const {
-		data: draft,
+		data,
 		isLoading,
 		error,
 		refetch,
-	} = (trpc.drafts.getById as any).useQuery(
-		{ draftId },
-		{
-			enabled: !!session?.user?.id,
-			refetchInterval: 30000, // Refetch every 30 seconds as fallback
-		},
+	} = useQuery(
+		trpc.drafts.getById.queryOptions(
+			{ draftId },
+			{
+				enabled: !!session?.user?.id,
+				refetchInterval: 30000,
+			},
+		),
 	);
+	const draft = data as QueueDraft | undefined;
 
 	const makeActionMutation = useMutation(
 		trpc.drafts.makeAction.mutationOptions({
@@ -65,12 +81,16 @@ export function DraftPageClient({ draftId }: DraftPageClientProps) {
 		draft && session?.user?.id
 			? (() => {
 					const isBlueTeam = draft.blueTeam.members.some(
-						(m: any) => m.user.id === session.user.id,
+						(member: QueueDraftMember) => member.user.id === session.user.id,
 					);
 					const isRedTeam = draft.redTeam.members.some(
-						(m: any) => m.user.id === session.user.id,
+						(member: QueueDraftMember) => member.user.id === session.user.id,
 					);
-					return isBlueTeam ? "BLUE" : isRedTeam ? "RED" : null;
+					return isBlueTeam
+						? ("BLUE" as QueueDraftSide)
+						: isRedTeam
+							? ("RED" as QueueDraftSide)
+							: null;
 				})()
 			: null;
 
@@ -84,11 +104,13 @@ export function DraftPageClient({ draftId }: DraftPageClientProps) {
 			: false;
 
 	// Get current action type
-	const currentAction = draft?.currentTurn.includes("_PICK_") ? "PICK" : "BAN";
+	const currentAction: QueueDraftActionType = draft?.currentTurn.includes("_PICK_")
+		? "PICK"
+		: "BAN";
 
 	// Socket.IO event handlers
 	const handleDraftUpdate = useCallback(
-		(data: any) => {
+		(data: QueueDraftUpdatePayload) => {
 			console.log("Draft update received:", data);
 			refetch();
 
@@ -102,8 +124,8 @@ export function DraftPageClient({ draftId }: DraftPageClientProps) {
 	);
 
 	const handleDraftCompleted = useCallback(
-		(data: any) => {
-			console.log("Draft completed:", data);
+		(payload: QueueDraftCompletedPayload) => {
+			console.log("Draft completed:", payload);
 			setShowCompletedModal(true);
 			refetch();
 		},
@@ -126,17 +148,17 @@ export function DraftPageClient({ draftId }: DraftPageClientProps) {
 				await joinRoomMutation.mutateAsync({ draftId });
 
 				// Connect to socket and join room
-				socket.connect();
-				socket.emit("draft:join-room", { draftId });
+				queueDraftSocket.connect();
+				queueDraftSocket.emit("draft:join-room", { draftId });
 
 				// Set up event listeners
-				socket.on("connect", () => setIsConnected(true));
-				socket.on("disconnect", () => setIsConnected(false));
-				socket.on("draft:update", handleDraftUpdate);
-				socket.on("draft:completed", handleDraftCompleted);
-				socket.on("draft:expired", handleDraftExpired);
+				queueDraftSocket.on("connect", () => setIsConnected(true));
+				queueDraftSocket.on("disconnect", () => setIsConnected(false));
+				queueDraftSocket.on("draft:update", handleDraftUpdate);
+				queueDraftSocket.on("draft:completed", handleDraftCompleted);
+				queueDraftSocket.on("draft:expired", handleDraftExpired);
 
-				setIsConnected(socket.connected);
+				setIsConnected(queueDraftSocket.connected);
 			} catch (error) {
 				console.error("Failed to join draft room:", error);
 				toast.error("Failed to connect to draft room");
@@ -146,10 +168,10 @@ export function DraftPageClient({ draftId }: DraftPageClientProps) {
 		connectSocket();
 
 		return () => {
-			socket.off("draft:update", handleDraftUpdate);
-			socket.off("draft:completed", handleDraftCompleted);
-			socket.off("draft:expired", handleDraftExpired);
-			socket.emit("draft:leave-room", { draftId });
+			queueDraftSocket.off("draft:update", handleDraftUpdate);
+			queueDraftSocket.off("draft:completed", handleDraftCompleted);
+			queueDraftSocket.off("draft:expired", handleDraftExpired);
+			queueDraftSocket.emit("draft:leave-room", { draftId });
 		};
 	}, [
 		session?.user?.id,

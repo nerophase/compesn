@@ -12,9 +12,27 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useLayoutEffect, useRef, useState } from "react";
-import { TUserTeam } from "@compesn/shared/common/types/user-team";
+import { TUserTeam } from "@compesn/shared/types/user-team";
+import type { FieldValues, Path, PathValue, UseFormReturn } from "react-hook-form";
 
-export function FormCombobox({
+type ComboboxOption<TValue extends string = string> = {
+	label: string;
+	value: TValue;
+};
+
+type FormComboboxProps<TFormValues extends FieldValues, TValue extends string> = {
+	form: UseFormReturn<TFormValues>;
+	options: ComboboxOption<TValue>[];
+	name: Path<TFormValues>;
+	label: string;
+	width?: number;
+	canSearch?: boolean;
+	blocked?: boolean;
+	orientation?: "horizontal" | "vertical";
+	callback?: (value: TValue) => void;
+};
+
+export function FormCombobox<TFormValues extends FieldValues, TValue extends string>({
 	form,
 	options,
 	name,
@@ -24,20 +42,7 @@ export function FormCombobox({
 	blocked = false,
 	orientation = "horizontal",
 	callback,
-}: {
-	form: any;
-	options: {
-		label: string;
-		value: any;
-	}[];
-	name: string;
-	label: string;
-	width?: number;
-	canSearch?: boolean;
-	blocked?: boolean;
-	orientation?: "horizontal" | "vertical";
-	callback?: (value: any) => void;
-}) {
+}: FormComboboxProps<TFormValues, TValue>) {
 	const [open, setOpen] = useState<boolean>(false);
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const [dropdownWidth, setDropdownWidth] = useState<number>(0);
@@ -83,9 +88,7 @@ export function FormCombobox({
 									ref={buttonRef}
 								>
 									{field.value
-										? options.find(
-												(option: any) => option.value === field.value,
-											)?.label
+										? options.find((option) => option.value === field.value)?.label
 										: `Select ${label}`}
 									<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 								</Button>
@@ -97,12 +100,15 @@ export function FormCombobox({
 								<CommandList>
 									<CommandEmpty>No {label} found.</CommandEmpty>
 									<CommandGroup>
-										{options.map((option: any) => (
+										{options.map((option) => (
 											<CommandItem
 												value={option.label}
 												key={option.value}
 												onSelect={() => {
-													form.setValue(name, option.value);
+													form.setValue(
+														name,
+														option.value as PathValue<TFormValues, Path<TFormValues>>,
+													);
 													setOpen(false);
 													callback?.(option.value);
 												}}
@@ -139,12 +145,12 @@ export function FormTeamNameCombobox({
 	blocked = false,
 	callback,
 }: {
-	form: any;
+	form: UseFormReturn<FieldValues>;
 	teams: TUserTeam[];
 	userTeams: TUserTeam[];
 	name: string;
 	blocked?: boolean;
-	callback?: (value?: any) => void;
+	callback?: (value?: string) => void;
 }) {
 	const [open, setOpen] = useState<boolean>(false);
 	const selectInputRef = useRef<HTMLButtonElement>(null);

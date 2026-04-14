@@ -14,7 +14,7 @@ import { getCachedChampionData } from "../../../lib/champion-cache";
 import fs from "fs";
 import path from "path";
 import axios from "axios";
-import { TChampion } from "@compesn/shared/common/types/champion";
+import { TChampion } from "@compesn/shared/types/champion";
 
 export const championsRouter = createTRPCRouter({
 	getAll: baseProcedure.query(() => {
@@ -284,10 +284,13 @@ export const championsRouter = createTRPCRouter({
 			throw new Error("champions-db/champion.json file not found");
 		}
 
-		const newChampions = JSON.parse(fs.readFileSync(championFilePath).toString()).data;
+		const newChampions = JSON.parse(fs.readFileSync(championFilePath).toString()).data as Record<
+			string,
+			{ name: string; tags: TChampion["tags"] }
+		>;
 
 		// Get current champions
-		let oldChampions: any;
+		let oldChampions: TChampion[];
 		if (fs.existsSync(CHAMPIONS_FILE_PATH)) {
 			try {
 				oldChampions = JSON.parse(fs.readFileSync(CHAMPIONS_FILE_PATH).toString());
@@ -314,7 +317,7 @@ export const championsRouter = createTRPCRouter({
 		}
 
 		// Sort and save champions
-		const sortedChampions = oldChampions.sort((a: any, b: any) => a.name.localeCompare(b.name));
+		const sortedChampions = oldChampions.sort((a, b) => a.name.localeCompare(b.name));
 
 		const dir = path.dirname(CHAMPIONS_FILE_PATH);
 		if (!fs.existsSync(dir)) {

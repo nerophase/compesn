@@ -24,11 +24,13 @@ import type { SearchResult } from "@/trpc/routers/search/search.schema";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 
+type SearchTab = "all" | "player" | "team" | "scrim";
+
 export function SearchResults() {
 	const trpc = useTRPC();
 	const searchParams = useSearchParams();
 	const query = searchParams.get("q");
-	const [selectedType, setSelectedType] = useState<"all" | "player" | "team" | "scrim">("all");
+	const [selectedType, setSelectedType] = useState<SearchTab>("all");
 
 	const { data, isLoading, error } = useQuery(
 		trpc.search.query.queryOptions(
@@ -119,7 +121,7 @@ export function SearchResults() {
 			</div>
 
 			{/* Results Tabs */}
-			<Tabs value={selectedType} onValueChange={(value) => setSelectedType(value as any)}>
+			<Tabs value={selectedType} onValueChange={(value) => setSelectedType(value as SearchTab)}>
 				<TabsList className="grid w-full grid-cols-4">
 					<TabsTrigger value="all" className="flex items-center gap-2">
 						<Search className="h-4 w-4" />

@@ -6,14 +6,15 @@ import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { PlusIcon } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { TAccount } from "@compesn/shared/common/types/account";
+import { TAccount } from "@compesn/shared/types/account";
+import { TRPCClientError } from "@trpc/client";
 
 type Params = {
 	name: "Riot" | "Discord";
 	logo: string;
 	accounts: TAccount[];
 	defaultAccountId: string | null;
-	setAccounts: any;
+	setAccounts: React.Dispatch<React.SetStateAction<TAccount[]>>;
 	canAddAccount: boolean;
 	canRemoveAccount: boolean;
 	// canSetDefault: boolean;
@@ -41,10 +42,10 @@ Params) {
 			await removeAccount({ accountId: account.id });
 			setAccounts(accounts.filter((acc) => acc.id !== account.id));
 			toast.success("Account removed successfully");
-		} catch (e: any) {
+		} catch (e: unknown) {
 			toast.error("Error while removing account", {
 				description:
-					e.message === "CANNOT_DELETE_DEFAULT_ACCOUNT"
+					e instanceof TRPCClientError && e.message === "CANNOT_DELETE_DEFAULT_ACCOUNT"
 						? "You can't delete the account you used to register."
 						: "An unexpected error occurred.",
 			});

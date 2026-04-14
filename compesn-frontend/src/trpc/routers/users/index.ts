@@ -22,7 +22,7 @@ import {
 	rankedStats,
 	matchHistory,
 	teamMembers,
-} from "@compesn/shared/common/schemas";
+} from "@compesn/shared/schemas";
 import { eq, and, or, ilike, isNotNull } from "drizzle-orm";
 import { regionToPlatform } from "../../../constants/regions";
 import { env } from "@/environment";
@@ -85,17 +85,18 @@ export const usersRouter = createTRPCRouter({
 				return (
 					await db
 						.update(users)
-						.set(input as any)
+						.set(input as Partial<typeof users.$inferInsert>)
 						.where(eq(users.id, ctx.user.id))
 						.returning()
 				)[0];
-			} catch (e: any) {
-				if (e.cause?.code === "23505") {
-					const fieldMatch = e.cause.detail?.match(/\((.*?)\)=/);
+			} catch (e: unknown) {
+				const dbError = e as { cause?: { code?: string; detail?: string }; message?: string };
+				if (dbError.cause?.code === "23505") {
+					const fieldMatch = dbError.cause.detail?.match(/\((.*?)\)=/);
 					const field = fieldMatch ? fieldMatch[1] : "field";
 					throw new Error(`The ${field} is already in use.`);
 				}
-				throw new Error(`Unexpected error: ${e.message}`);
+				throw new Error(`Unexpected error: ${dbError.message}`);
 			}
 		}),
 
@@ -375,9 +376,7 @@ export const usersRouter = createTRPCRouter({
 							);
 
 							// Find participant data for this user
-							const participant = matchDetail.info.participants.find(
-								(p: any) => p.puuid === puuid,
-							);
+							const participant = matchDetail.info.participants.find((p) => p.puuid === puuid);
 
 							if (!participant) return null;
 
@@ -599,9 +598,7 @@ export const usersRouter = createTRPCRouter({
 					}
 
 					// Find participant data for this user
-					const participant = matchDetail.info.participants.find(
-						(p: any) => p.puuid === puuid,
-					);
+					const participant = matchDetail.info.participants.find((p) => p.puuid === puuid);
 
 					if (!participant) return null;
 

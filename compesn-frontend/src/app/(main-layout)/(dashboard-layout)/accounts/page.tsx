@@ -1,8 +1,8 @@
 import { db } from "@/lib/database/db";
 import AccountsPageClient from "./page-client";
-import { SearchParams } from "@compesn/shared/common/types/page-params";
+import { SearchParams } from "@compesn/shared/types/page-params";
 import { eq } from "drizzle-orm";
-import { users } from "@compesn/shared/common/schemas";
+import { users } from "@compesn/shared/schemas";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { ROUTES } from "@/environment";

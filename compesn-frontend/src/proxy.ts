@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { auth } from "./lib/auth";
 import { db } from "./lib/database/db";
 import { eq } from "drizzle-orm";
-import { users } from "@compesn/shared/common/schemas/users";
+import { users } from "@compesn/shared/schemas/users";
 
 // Protected routes that require Riot account linking
 const PROTECTED_ROUTES = [

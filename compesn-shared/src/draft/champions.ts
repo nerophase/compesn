@@ -1,7 +1,7 @@
-import type { TChampion } from "../common/types/champion";
-import type { TChampionList } from "../common/types/champion-list";
-import type { TDraft } from "../common/types/draft";
-import type { TTurn } from "../common/types/turn";
+import type { TChampion } from "../types/champion";
+import type { TChampionList } from "../types/champion-list";
+import type { TDraft } from "../types/draft";
+import type { TTurn } from "../types/turn";
 
 const getDraftList = (draft: TDraft, turn: TTurn | undefined): TChampionList => {
 	const team = turn?.team;

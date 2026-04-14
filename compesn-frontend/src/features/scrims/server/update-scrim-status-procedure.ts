@@ -2,7 +2,7 @@ import { authenticatedProcedure } from "@/trpc/init";
 import { ScrimUpdateStatusSchema } from "@/trpc/routers/scrims/scrims.schema";
 import { db } from "@/lib/database/db";
 import { and, eq, gte, lte, or, sql } from "drizzle-orm";
-import { scrims } from "@compesn/shared/common/schemas";
+import { scrims } from "@compesn/shared/schemas";
 import { TRPCError } from "@trpc/server";
 import { createNotification } from "@/lib/notifications";
 import { redis } from "@/lib/database/redis";

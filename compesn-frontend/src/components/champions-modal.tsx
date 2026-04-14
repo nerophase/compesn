@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import ChampionSelector from "@/components/champion-selector";
 import { Shield, X } from "lucide-react";
-import { TChampion } from "@compesn/shared/common/types/champion";
+import { TChampion } from "@compesn/shared/types/champion";
 
 interface ChampionsModalProps {
 	children: React.ReactNode;

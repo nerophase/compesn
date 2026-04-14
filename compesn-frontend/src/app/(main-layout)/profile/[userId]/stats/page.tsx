@@ -188,8 +188,8 @@ export default function UserStatsPage() {
 
 	const sendFriendRequestMutation = useMutation(
 		trpc.friends.sendRequest.mutationOptions({
-			onSuccess: (result: any) => {
-				if (result?.autoAccepted) {
+			onSuccess: (result) => {
+				if ("autoAccepted" in result && result.autoAccepted) {
 					toast.success("Friend request accepted.");
 				} else {
 					toast.success("Friend request sent.");

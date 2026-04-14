@@ -1,6 +1,10 @@
 import { redis } from "@/lib/database/redis";
 import { env } from "@/environment";
-import type { SearchQueryInput, SearchResponse } from "@/trpc/routers/search/search.schema";
+import {
+	type SearchQueryInput,
+	type SearchResponse,
+	searchResponseSchema,
+} from "@/trpc/routers/search/search.schema";
 import { SearchTelemetryService, PerformanceTimer } from "./search-telemetry";
 
 export class SearchCacheService {
@@ -38,10 +42,10 @@ export class SearchCacheService {
 				return null;
 			}
 
-			const parsed = JSON.parse(cached);
+			const parsed = searchResponseSchema.parse(JSON.parse(cached));
 
 			// Convert date strings back to Date objects
-			parsed.results.forEach((result: any) => {
+			parsed.results.forEach((result) => {
 				if (result.type === "team" && result.createdAt) {
 					result.createdAt = new Date(result.createdAt);
 				}
@@ -51,7 +55,7 @@ export class SearchCacheService {
 			});
 
 			SearchTelemetryService.logCacheMetrics("hit", cacheKey, executionTimeMs);
-			return parsed as SearchResponse;
+			return parsed;
 		} catch (error) {
 			const executionTimeMs = timer.getElapsedMs();
 			SearchTelemetryService.logCacheMetrics(

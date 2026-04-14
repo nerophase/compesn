@@ -198,7 +198,7 @@ export const PerksSchema = z.object({
 export type Perks = z.infer<typeof PerksSchema>;
 
 export const TeamSchema = z.object({
-	bans: z.array(z.any()),
+	bans: z.array(z.unknown()),
 	objectives: ObjectivesSchema,
 	teamId: z.number(),
 	win: z.boolean(),

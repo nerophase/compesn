@@ -70,8 +70,9 @@ export default function DraftControls() {
 							whileHover={{ scale: 1.05 }}
 							whileTap={{ scale: 0.95 }}
 							onClick={() => {
+								if (!draft.turn?.number) return;
 								socket.emit("draft:lock-champion", {
-									turnNumber: draft.turn?.number,
+									turnNumber: draft.turn.number,
 								});
 							}}
 							className="px-4 h-8 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-lg shadow-lg hover:shadow-cyan-500/25 transition-all duration-200"
@@ -107,7 +108,9 @@ function RepeatPreviousTurnButton() {
 				whileTap={{ scale: 0.95 }}
 				className="px-6 h-8 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-cyan-500/25 transition-all duration-200"
 				onClick={() => {
-					socket.emit("draft:request-repeat-previous-turn", player.team);
+					if (player.team) {
+						socket.emit("draft:request-repeat-previous-turn", player.team);
+					}
 				}}
 			>
 				Repeat Previous Turn

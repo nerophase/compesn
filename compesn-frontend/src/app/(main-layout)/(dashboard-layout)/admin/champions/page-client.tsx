@@ -3,11 +3,11 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { TChampion } from "@compesn/shared/common/types/champion";
+import { TChampion } from "@compesn/shared/types/champion";
 import SearchBar from "@/components/search-bar";
 import ChampionFilters from "@/components/champion-filters";
 import Image from "next/image";
-import { TRole } from "@compesn/shared/common/types/role";
+import { TRole } from "@compesn/shared/types/role";
 import CheckboxInput from "@/components/checkbox-input";
 import {
 	Table,
@@ -30,7 +30,7 @@ export default function ManageChampionsPage() {
 
 	const [championsList, setChampionsList] = useState<TChampion[]>([]);
 	const [search, setSearch] = useState<string>("");
-	const [activeFilters, setActiveFilters]: [any[], any] = useState([]);
+	const [activeFilters, setActiveFilters] = useState<Array<TRole | "no-role">>([]);
 	const [loadingUpdate, setLoadingUpdate] = useState<boolean>(false);
 	const [rolesDialogOpen, setRolesDialogOpen] = useState<boolean>(false);
 	const [selectedChampion, setSelectedChampion] = useState<TChampion>();
@@ -51,7 +51,7 @@ export default function ManageChampionsPage() {
 						haveRoles = true;
 						return;
 					}
-					if (!champion.roles.includes(activeFilter)) {
+					if (activeFilter !== "no-role" && !champion.roles.includes(activeFilter)) {
 						haveRoles = false;
 					}
 				});

@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { redirect } from "next/navigation";
 import axios from "axios";
 import { db } from "@/lib/database/db";
-import { accounts } from "@compesn/shared/common/schemas";
+import { accounts } from "@compesn/shared/schemas";
 import { eq, and } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { env, ROUTES } from "@/environment/index";

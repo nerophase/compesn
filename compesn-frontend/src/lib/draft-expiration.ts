@@ -2,7 +2,7 @@ import { db } from "./database/db";
 import { and, eq, lt } from "drizzle-orm";
 import { redis } from "./database/redis";
 import { createNotification } from "./notifications";
-import { scrimDrafts } from "@compesn/shared/common/schemas/scrim-drafts";
+import { scrimDrafts } from "@compesn/shared/schemas/scrim-drafts";
 
 /**
  * Scheduled job to check for expired drafts and update their status

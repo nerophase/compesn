@@ -1,6 +1,6 @@
 import { createTRPCRouter, authenticatedProcedure } from "../../init";
 import { searchQuerySchema, searchResponseSchema, type SearchResult } from "./search.schema";
-import { users, teams, scrims } from "@compesn/shared/common/schemas";
+import { users, teams, scrims } from "@compesn/shared/schemas";
 import { sql, desc } from "drizzle-orm";
 import { SearchCacheService } from "@/lib/search-cache";
 import { SearchTelemetryService, PerformanceTimer, SearchAnalytics } from "@/lib/search-telemetry";

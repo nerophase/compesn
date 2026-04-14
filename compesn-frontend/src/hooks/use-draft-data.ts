@@ -9,13 +9,17 @@ import { socket } from "@/lib/sockets";
 import { useTimer } from "react-timer-hook";
 import { toast } from "sonner";
 import { TJoinTeamFunction } from "@/app/(main-layout)/draft/[roomId]/page";
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
-import { TRoom } from "@compesn/shared/common/types/room";
-import { TRoomMember } from "@compesn/shared/common/types/room-member";
-import { TChampion } from "@compesn/shared/common/types/champion";
-import { TStyles } from "@compesn/shared/common/types/styles";
-import { TDraft } from "@compesn/shared/common/types/draft";
+import { TTeamColor } from "@compesn/shared/types/team-color";
+import { TRoom } from "@compesn/shared/types/room";
+import { TRoomMember } from "@compesn/shared/types/room-member";
+import { TChampion } from "@compesn/shared/types/champion";
+import { TStyles } from "@compesn/shared/types/styles";
+import { TDraft } from "@compesn/shared/types/draft";
 import { useTRPCClient } from "@/trpc/client";
+import type {
+	DraftChatMessage,
+	RoomUserJoinedTeamPayload,
+} from "@compesn/shared/types/realtime/socket";
 
 const INITIAL_PLAYER: TRoomMember = {
 	socketId: "",
@@ -239,15 +243,7 @@ export const useDraftData = (
 	}, []);
 
 	const handleUserJoinTeam = useCallback(
-		({
-			room,
-			roomMember,
-			userId,
-		}: {
-			room: TRoom;
-			roomMember: TRoomMember;
-			userId?: string;
-		}) => {
+		({ room, roomMember, userId }: RoomUserJoinedTeamPayload) => {
 			setStylesByTeamRef.current?.(roomMember.team);
 			setJoinRoomModalActiveRef.current(false);
 			setRoom(room);
@@ -316,17 +312,7 @@ export const useDraftData = (
 	);
 
 	const handleChatMessage = useCallback(
-		({
-			name,
-			team,
-			all,
-			text,
-		}: {
-			name: string;
-			team: TTeamColor;
-			all: boolean;
-			text: string;
-		}) => {
+		({ name, team, all, text }: DraftChatMessage) => {
 			const currentPlayer = playerRef.current;
 			if (currentPlayer.socketId) {
 				addMessagetoChatBoxRef.current(name, team, all, text);

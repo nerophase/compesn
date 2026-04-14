@@ -1,10 +1,16 @@
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
-import { Socket } from "socket.io";
+import { TTeamColor } from "@compesn/shared/types/team-color";
 import { roomService } from "@/services/room";
 import { getTeam } from "@/utils";
 import { getDraftSocketContext } from "@/utils/socket-rooms";
+import type { DraftSocket } from "@/websockets/socket-types";
 
 type Room = NonNullable<Awaited<ReturnType<typeof roomService.getRoomById>>>;
+type DraftErrorEvent =
+	| "error:room"
+	| "error:joining-room"
+	| "error:not-connected"
+	| "error:locking-champion"
+	| "error:selecting-champion";
 type RoomContext = {
 	roomId: string;
 	teamId: string | undefined;
@@ -21,8 +27,8 @@ type DraftTeamContext = {
 };
 
 export const requireRoomContext = async (
-	socket: Socket,
-	errorEvent: string = "error:room",
+	socket: DraftSocket,
+	errorEvent: DraftErrorEvent = "error:room",
 	errorMessage: string = "User has not connected to any room.",
 ): Promise<RoomContext | null> => {
 	const { roomId } = getDraftSocketContext(socket);
@@ -42,15 +48,15 @@ export const requireRoomContext = async (
 
 	return {
 		roomId,
-		teamId: socket.data.draftTeamId as string | undefined,
+		teamId: socket.data.draftTeamId,
 		room,
 		currentDraft,
 	};
 };
 
 export const requireDraftTeamContext = async (
-	socket: Socket,
-	errorEvent: string = "error:room",
+	socket: DraftSocket,
+	errorEvent: DraftErrorEvent = "error:room",
 ): Promise<DraftTeamContext | null> => {
 	const context = await requireRoomContext(socket, errorEvent);
 

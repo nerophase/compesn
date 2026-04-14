@@ -2,7 +2,7 @@ import { baseProcedure } from "@/trpc/init";
 import { ScrimListSchema } from "@/trpc/routers/scrims/scrims.schema";
 import { db } from "@/lib/database/db";
 import { redis } from "@/lib/database/redis";
-import { scrims, teams, teamMembers } from "@compesn/shared/common/schemas";
+import { scrims, teams, teamMembers } from "@compesn/shared/schemas";
 import { and, asc, count, eq, exists, gte, ilike, inArray, lte, or, sql } from "drizzle-orm";
 import { logError } from "@compesn/shared/logging";
 import { TRPCError } from "@trpc/server";

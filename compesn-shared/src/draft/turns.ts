@@ -1,4 +1,4 @@
-import type { TTurn } from "../common/types/turn";
+import type { TTurn } from "../types/turn";
 
 export const TURNS: TTurn[] = [
 	{ number: 1, team: "blue", type: "ban", typeNumber: 1, configOrder: 1 },

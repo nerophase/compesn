@@ -23,6 +23,7 @@ import { useSession } from "next-auth/react";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { getRankTierValue } from "@/trpc/routers/scrims/scrims.schema";
+import type { AppRouter } from "@/trpc/routers/_app";
 import {
 	Pagination,
 	PaginationContent,
@@ -55,6 +56,10 @@ const RANK_TIERS = [
 ] as const;
 
 type RankTier = (typeof RANK_TIERS)[number];
+type ScrimsListResult = Awaited<ReturnType<AppRouter["scrims"]["list"]>>;
+type ScrimListItem = ScrimsListResult["items"][number];
+type ScrimMember = ScrimListItem["creatingTeam"]["members"][number];
+type UserTeam = Awaited<ReturnType<AppRouter["teams"]["userTeamsFlat"]>>[number];
 type Region =
 	| "br"
 	| "eune"
@@ -136,15 +141,8 @@ export default function ScrimsPage() {
 		enabled: !!currentUserId,
 	});
 
-	const scrimsResult = scrimsData as
-		| {
-				items: any[];
-				total: number;
-				limit: number;
-				offset: number;
-		  }
-		| undefined;
-	const userTeams = userTeamsData ?? [];
+	const scrimsResult: ScrimsListResult | undefined = scrimsData;
+	const userTeams: UserTeam[] = userTeamsData ?? [];
 	const totalPages = Math.max(1, Math.ceil((scrimsResult?.total ?? 0) / pageSize));
 	const visibleScrims = scrimsResult?.items ?? [];
 
@@ -189,7 +187,7 @@ export default function ScrimsPage() {
 				setSelectedRequestTeamId("");
 				refetch();
 			},
-			onError: (error: any) => {
+			onError: (error) => {
 				toast.error(error.message || "Failed to request scrim");
 				setRequestingScrimId(null);
 			},
@@ -203,7 +201,7 @@ export default function ScrimsPage() {
 				setCancellingRequestScrimId(null);
 				refetch();
 			},
-			onError: (error: any) => {
+			onError: (error) => {
 				toast.error(error.message || "Failed to cancel scrim request");
 				setCancellingRequestScrimId(null);
 			},
@@ -443,16 +441,16 @@ export default function ScrimsPage() {
 			) : visibleScrims.length > 0 ? (
 				<>
 					<div className="grid gap-4">
-						{visibleScrims.map((scrim: any) => {
+						{visibleScrims.map((scrim: ScrimListItem) => {
 							const isUsersScrim =
 								!!currentUserId &&
 								scrim.creatingTeam?.members?.some(
-									(member: any) => member.userId === currentUserId,
+									(member: ScrimMember) => member.userId === currentUserId,
 								);
 							const isRequestingTeamMember =
 								!!currentUserId &&
 								!!scrim.opponentTeam?.members?.some(
-									(member: any) => member.userId === currentUserId,
+									(member: ScrimMember) => member.userId === currentUserId,
 								);
 							const canCancelRequest =
 								scrim.status === "REQUESTED" && isRequestingTeamMember;

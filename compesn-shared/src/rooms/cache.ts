@@ -1,4 +1,4 @@
-import type { TRoom } from "../common/schemas/rooms";
+import type { TRoom } from "../schemas/rooms";
 
 type SerializedRoom = Omit<TRoom, "createdAt" | "updatedAt"> & {
 	createdAt: string | Date;

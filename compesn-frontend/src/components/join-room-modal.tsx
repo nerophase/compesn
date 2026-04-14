@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { TJoinTeamFunction } from "@/app/(main-layout)/draft/[roomId]/page";
-import { TRoom } from "@compesn/shared/common/types/room";
+import { TRoom } from "@compesn/shared/types/room";
 
 const JoinRoomModal = memo(function JoinRoomModal({
 	room,

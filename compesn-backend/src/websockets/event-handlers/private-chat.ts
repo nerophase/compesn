@@ -1,12 +1,13 @@
-import { TMessage, TUser } from "@compesn/shared/common/schemas";
-import { Namespace, Socket } from "socket.io";
+import type {
+	PrivateJoinPayload,
+	SerializedPrivateMessage,
+} from "@compesn/shared/types/realtime/socket";
+import type { PrivateChatNamespace, PrivateChatSocket } from "@/websockets/socket-types";
 
-type PrivateJoinPayload = {
-	userId: string;
-	conversations: string[];
-};
-
-export const registerPrivateChatHandlers = (io: Namespace, socket: Socket) => {
+export const registerPrivateChatHandlers = (
+	io: PrivateChatNamespace,
+	socket: PrivateChatSocket,
+) => {
 	socket.on("private:join", ({ userId, conversations = [] }: PrivateJoinPayload) => {
 		if (!userId) {
 			socket.emit("private:error", "userId is required");
@@ -21,7 +22,7 @@ export const registerPrivateChatHandlers = (io: Namespace, socket: Socket) => {
 		}
 	});
 
-	socket.on("private:message", (message: TMessage & { sender: TUser }) => {
+	socket.on("private:message", (message: SerializedPrivateMessage) => {
 		if (!message.conversationId) {
 			socket.emit("private:error", "conversationId is required");
 			return;

@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { LocalizedDateTime } from "@/components/localized-datetime";
 import { cn } from "@/lib/utils";
+import { AppRouter } from "@/trpc/routers/_app";
+
+type TeamDraftHistoryItem = Awaited<ReturnType<AppRouter["draftHistory"]["byTeam"]>>[number];
 
 export function TeamDraftHistoryTab({ teamId }: { teamId: string }) {
 	const trpc = useTRPC();
@@ -17,13 +20,13 @@ export function TeamDraftHistoryTab({ teamId }: { teamId: string }) {
 		data: draftHistory,
 		isLoading,
 		error,
-	} = useQuery({
-		...(trpc.draftHistory.byTeam as any).queryOptions({
+	} = useQuery(
+		trpc.draftHistory.byTeam.queryOptions({
 			teamId,
 			limit: 20,
 			offset: 0,
 		}),
-	});
+	);
 
 	if (isLoading) {
 		return (
@@ -47,14 +50,16 @@ export function TeamDraftHistoryTab({ teamId }: { teamId: string }) {
 						<h3 className="text-lg font-medium text-gray-300 mb-2">
 							Error loading draft history
 						</h3>
-						<p className="text-gray-500">{(error as Error).message}</p>
+						<p className="text-gray-500">
+							{error instanceof Error ? error.message : "Unknown error"}
+						</p>
 					</div>
 				</CardContent>
 			</Card>
 		);
 	}
 
-	const drafts = draftHistory as any[] | undefined;
+	const drafts = draftHistory as TeamDraftHistoryItem[] | undefined;
 
 	if (!drafts || drafts.length === 0) {
 		return (
@@ -87,7 +92,7 @@ export function TeamDraftHistoryTab({ teamId }: { teamId: string }) {
 				</CardHeader>
 				<CardContent>
 					<div className="space-y-4">
-						{drafts.map((draft: any) => (
+						{drafts.map((draft) => (
 							<div
 								key={draft.id}
 								className="p-4 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-700/50 hover:border-cyan-500/30 transition-all cursor-pointer"

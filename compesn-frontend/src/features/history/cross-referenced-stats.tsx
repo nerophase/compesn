@@ -2,6 +2,16 @@
 
 import { motion } from "framer-motion";
 import { BarChart2 } from "lucide-react";
+import type { matchHistory } from "./match-history-data";
+
+type HistoryMatch = (typeof matchHistory)[number];
+type ComparableStatKey = "kda" | "cs" | "damage" | "gold" | "vision";
+type ComparableStat = {
+	key: ComparableStatKey;
+	label: string;
+	higherIsBetter: boolean;
+	type?: string;
+};
 
 const statConfig = {
 	"League of Legends": [
@@ -10,7 +20,7 @@ const statConfig = {
 		{ key: "damage", label: "Damage", higherIsBetter: true },
 		{ key: "gold", label: "Gold", higherIsBetter: true },
 		{ key: "vision", label: "Vision Score", higherIsBetter: true },
-	],
+	] satisfies ComparableStat[],
 };
 
 const parseKDA = (kda: string) => {
@@ -21,14 +31,20 @@ const parseKDA = (kda: string) => {
 	return (k + a) / d;
 };
 
-export const CrossReferencedStats = ({ match1, match2 }: { match1: any; match2: any }) => {
+export const CrossReferencedStats = ({
+	match1,
+	match2,
+}: {
+	match1: HistoryMatch;
+	match2: HistoryMatch;
+}) => {
 	const gameStats = statConfig["League of Legends"];
 
 	const StatRow = ({
 		stat,
 	}: {
 		stat: {
-			key: string;
+			key: ComparableStatKey;
 			label: string;
 			higherIsBetter: boolean;
 			type?: string;

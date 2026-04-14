@@ -1,4 +1,4 @@
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
+import { TTeamColor } from "@compesn/shared/types/team-color";
 import { TURNS } from "@/constants/turns";
 import useDraft from "@/hooks/use-draft";
 import { socket } from "@/lib/sockets";
@@ -88,7 +88,9 @@ const OngoingPanel = memo(function OngoingPanel() {
 							<PanelButton
 								Icon={RotateCcwIcon}
 								onClick={() => {
-									socket.emit("draft:request-repeat-previous-turn", player.team);
+									if (player.team) {
+										socket.emit("draft:request-repeat-previous-turn", player.team);
+									}
 								}}
 								bgColor={styles.bgColor}
 							/>
@@ -99,8 +101,9 @@ const OngoingPanel = memo(function OngoingPanel() {
 								Icon={true ? Check : Lightbulb} // ifthe  player was not capt they could suggest champions
 								onClick={() => {
 									// Confirm and Suggest Pick/Ban (add tooltip)
+									if (!currentTurn?.number) return;
 									socket.emit("draft:lock-champion", {
-										turnNumber: currentTurn?.number,
+										turnNumber: currentTurn.number,
 									});
 
 									// Suggest pick/ban
@@ -167,7 +170,7 @@ function PanelButton({
 	bgColor,
 }: {
 	Icon: LucideIcon;
-	onClick: any;
+	onClick: () => void;
 	bgColor: string;
 }) {
 	return (

@@ -5,11 +5,11 @@ import ChampionFilters from "./champion-filters";
 import { cn, getChampionSmallImgURL } from "@/lib/utils";
 import { Tooltip } from "react-tooltip";
 import React from "react";
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
-import { TChampionList } from "@compesn/shared/common/types/champion-list";
-import { TChampion } from "@compesn/shared/common/types/champion";
-import { TTurn } from "@compesn/shared/common/types/turn";
-import { TRole } from "@compesn/shared/common/types/role";
+import { TTeamColor } from "@compesn/shared/types/team-color";
+import { TChampionList } from "@compesn/shared/types/champion-list";
+import { TChampion } from "@compesn/shared/types/champion";
+import { TTurn } from "@compesn/shared/types/turn";
+import { TRole } from "@compesn/shared/types/role";
 
 type TMode = "DISABLE_CHAMPIONS" | "DRAFT";
 
@@ -44,14 +44,16 @@ const ChampionSelector = memo(function ChampionSelector({
 	mode?: TMode;
 	onChampionSelect: (champion: TChampion) => void;
 }) {
-	const [activeFilters, setActiveFilters]: [TRole[], any] = useState([]);
+	const [activeFilters, setActiveFilters] = useState<(TRole | "no-role")[]>([]);
 	const [search, setSearch] = useState("");
 	const deferredSearch = useDeferredValue(search);
 
 	const filteredChampions = useMemo(() => {
 		return champions.filter((champion) => {
 			const nameMatches = champion.name.toLowerCase().includes(deferredSearch.toLowerCase());
-			const roleMatches = activeFilters.every((role) => champion.roles.includes(role));
+			const roleMatches = activeFilters.every((role) =>
+				role === "no-role" ? champion.roles.length === 0 : champion.roles.includes(role),
+			);
 			return nameMatches && roleMatches;
 		});
 	}, [champions, deferredSearch, activeFilters]);

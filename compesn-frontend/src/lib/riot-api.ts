@@ -1,6 +1,6 @@
 import "server-only";
 import { env } from "@/environment";
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosError, AxiosInstance } from "axios";
 import { TRegion } from "@/trpc/routers/teams/teams.schema";
 
 // Riot API regional routing
@@ -113,6 +113,14 @@ export interface MatchDetails {
 	};
 }
 
+type RiotRequestParams = Record<string, number>;
+
+const getAxiosErrorMessage = (error: unknown) =>
+	error instanceof AxiosError ? error.message : "Unknown Riot API error";
+
+const isAxiosNotFoundError = (error: unknown) =>
+	error instanceof AxiosError && error.response?.status === 404;
+
 export class RiotApiService {
 	private apiKey: string;
 	private accountClient: AxiosInstance;
@@ -136,11 +144,11 @@ export class RiotApiService {
 				`${baseUrl}/riot/account/v1/accounts/by-puuid/${puuid}`,
 			);
 			return response.data;
-		} catch (error: any) {
-			if (error.response?.status === 404) {
+		} catch (error: unknown) {
+			if (isAxiosNotFoundError(error)) {
 				return null;
 			}
-			console.error("Error fetching Riot account by PUUID:", error.message);
+			console.error("Error fetching Riot account by PUUID:", getAxiosErrorMessage(error));
 			throw error;
 		}
 	}
@@ -155,8 +163,8 @@ export class RiotApiService {
 				`${baseUrl}/lol/league/v4/entries/by-summoner/${summonerId}`,
 			);
 			return response.data;
-		} catch (error: any) {
-			console.error("Error fetching ranked stats:", error.message);
+		} catch (error: unknown) {
+			console.error("Error fetching ranked stats:", getAxiosErrorMessage(error));
 			return [];
 		}
 	}
@@ -169,15 +177,15 @@ export class RiotApiService {
 	): Promise<string[]> {
 		try {
 			const baseUrl = this.getAccountRegionUrl(region);
-			const params: Record<string, any> = { count, start };
+			const params: RiotRequestParams = { count, start };
 
 			const response = await this.accountClient.get<string[]>(
 				`${baseUrl}/lol/match/v5/matches/by-puuid/${puuid}/ids`,
 				{ params },
 			);
 			return response.data;
-		} catch (error: any) {
-			console.error("Error fetching match IDs:", error.message);
+		} catch (error: unknown) {
+			console.error("Error fetching match IDs:", getAxiosErrorMessage(error));
 			return [];
 		}
 	}
@@ -189,11 +197,11 @@ export class RiotApiService {
 				`${baseUrl}/lol/match/v5/matches/${matchId}`,
 			);
 			return response.data;
-		} catch (error: any) {
-			if (error.response?.status === 404) {
+		} catch (error: unknown) {
+			if (isAxiosNotFoundError(error)) {
 				throw new Error("Match not found");
 			}
-			console.error("Error fetching match details:", error.message);
+			console.error("Error fetching match details:", getAxiosErrorMessage(error));
 			throw error;
 		}
 	}
@@ -223,11 +231,11 @@ export class RiotApiService {
 				)}/${encodeURIComponent(tagLine)}`,
 			);
 			return response.data;
-		} catch (error: any) {
-			if (error.response?.status === 404) {
+		} catch (error: unknown) {
+			if (isAxiosNotFoundError(error)) {
 				return null;
 			}
-			console.error("Error fetching Riot account:", error.message);
+			console.error("Error fetching Riot account:", getAxiosErrorMessage(error));
 			throw error;
 		}
 	}
@@ -242,11 +250,11 @@ export class RiotApiService {
 				`${baseUrl}/lol/summoner/v4/summoners/by-puuid/${puuid}`,
 			);
 			return response.data;
-		} catch (error: any) {
-			if (error.response?.status === 404) {
+		} catch (error: unknown) {
+			if (isAxiosNotFoundError(error)) {
 				return null;
 			}
-			console.error("Error fetching summoner:", error.message);
+			console.error("Error fetching summoner:", getAxiosErrorMessage(error));
 			throw error;
 		}
 	}
@@ -261,8 +269,8 @@ export class RiotApiService {
 				`${baseUrl}/lol/league/v4/entries/by-summoner/${summonerId}`,
 			);
 			return response.data;
-		} catch (error: any) {
-			console.error("Error fetching ranked stats:", error.message);
+		} catch (error: unknown) {
+			console.error("Error fetching ranked stats:", getAxiosErrorMessage(error));
 			return [];
 		}
 	}
@@ -278,7 +286,7 @@ export class RiotApiService {
 	): Promise<string[]> {
 		try {
 			const baseUrl = this.getAccountRegionUrl(region);
-			const params: Record<string, any> = { count };
+			const params: RiotRequestParams = { count };
 			if (queueId) params.queue = queueId;
 
 			const response = await this.accountClient.get<string[]>(
@@ -286,8 +294,8 @@ export class RiotApiService {
 				{ params },
 			);
 			return response.data;
-		} catch (error: any) {
-			console.error("Error fetching match IDs:", error.message);
+		} catch (error: unknown) {
+			console.error("Error fetching match IDs:", getAxiosErrorMessage(error));
 			return [];
 		}
 	}
@@ -295,18 +303,18 @@ export class RiotApiService {
 	/**
 	 * Get match details by match ID
 	 */
-	async getMatchDetails(matchId: string, region: string = "na"): Promise<any | null> {
+	async getMatchDetails(matchId: string, region: string = "na"): Promise<MatchDetails | null> {
 		try {
 			const baseUrl = this.getAccountRegionUrl(region);
-			const response = await this.accountClient.get(
+			const response = await this.accountClient.get<MatchDetails>(
 				`${baseUrl}/lol/match/v5/matches/${matchId}`,
 			);
 			return response.data;
-		} catch (error: any) {
-			if (error.response?.status === 404) {
+		} catch (error: unknown) {
+			if (isAxiosNotFoundError(error)) {
 				return null;
 			}
-			console.error("Error fetching match details:", error.message);
+			console.error("Error fetching match details:", getAxiosErrorMessage(error));
 			throw error;
 		}
 	}

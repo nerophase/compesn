@@ -1,17 +1,16 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { useTRPC } from "@/trpc/client";
-import type { ChampionData } from "@/lib/champion-cache";
 import LoaderSpin from "@/components/loader-spin";
 import { Users, Ban, Target } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import type { QueueDraftMember, QueueDraftTeam } from "./draft-types";
 
 interface DraftTeamSectionProps {
-	team: any;
+	team: QueueDraftTeam;
 	picks: number[];
 	bans: number[];
 	color: "blue" | "red";
@@ -79,7 +78,7 @@ export function DraftTeamSection({ team, picks, bans, color, isUserTeam }: Draft
 			<div className="mb-6">
 				<h4 className="text-sm font-semibold text-muted-foreground mb-2">Team Members</h4>
 				<div className="space-y-2">
-					{team.members.map((member: any) => (
+					{team.members.map((member: QueueDraftMember) => (
 						<div key={member.id} className="flex items-center gap-3 text-sm">
 							<Badge
 								variant="outline"

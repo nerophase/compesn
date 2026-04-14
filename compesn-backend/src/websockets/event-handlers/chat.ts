@@ -1,17 +1,18 @@
-import { Server, Socket } from "socket.io";
 import { draftRoomChannel, draftTeamChannel, getDraftSocketContext } from "@/utils/socket-rooms";
+import type { DraftChatMessage } from "@compesn/shared/types/realtime/socket";
+import type { DraftServer, DraftSocket } from "@/websockets/socket-types";
 
-export const registerChatHandlers = (io: Server, socket: Socket) => {
-	socket.on("chat:message", ({ name, team, all, text }: any) => {
+export const registerChatHandlers = (io: DraftServer, socket: DraftSocket) => {
+	socket.on("chat:message", ({ name, team, all, text }: DraftChatMessage) => {
 		const { teamId, roomId } = getDraftSocketContext(socket);
 
 		if (!roomId) {
-			socket.emit("errorRoom", "User has not connected to any room.");
+			socket.emit("error:room", "User has not connected to any room.");
 			return;
 		}
 
 		if (!all && !teamId) {
-			socket.emit("errorRoom", "User has not connected to any team.");
+			socket.emit("error:room", "User has not connected to any team.");
 			return;
 		}
 

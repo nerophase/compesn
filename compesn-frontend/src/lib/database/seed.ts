@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { getDb } from "./index";
-import * as schema from "@compesn/shared/common/schemas";
+import * as schema from "@compesn/shared/schemas";
 import bcrypt from "bcryptjs";
 
 const db = getDb();

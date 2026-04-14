@@ -1,11 +1,11 @@
-import { TRoomSettings } from "@compesn/shared/common/types/room-settings";
+import { TRoomSettings } from "@compesn/shared/types/room-settings";
 import { generateId } from "@/utils/password";
 import { db } from "@/database";
-import { rooms, TRoom, TRoomInsert } from "@compesn/shared/common/schemas/rooms";
+import { rooms, TRoom, TRoomInsert } from "@compesn/shared/schemas/rooms";
 import { deserializeRoomCache, serializeRoomCache } from "@compesn/shared/rooms/cache";
 import { logError } from "@compesn/shared/logging";
 import { arrayContains, eq } from "drizzle-orm";
-import { TDraft } from "@compesn/shared/common/types/draft";
+import { TDraft } from "@compesn/shared/types/draft";
 import { redis } from "@/database/redis";
 import { env } from "@/environment";
 

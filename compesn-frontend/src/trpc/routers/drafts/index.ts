@@ -13,9 +13,9 @@ import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { redis } from "../../../lib/database/redis";
 import { createNotification } from "../../../lib/notifications";
-import { scrims } from "@compesn/shared/common/schemas/scrims";
-import { scrimDrafts, TScrimDraftInsert } from "@compesn/shared/common/schemas/scrim-drafts";
-import { teamMembers } from "@compesn/shared/common/schemas/teams";
+import { scrims } from "@compesn/shared/schemas/scrims";
+import { scrimDrafts, TScrimDraftInsert } from "@compesn/shared/schemas/scrim-drafts";
+import { teamMembers } from "@compesn/shared/schemas/teams";
 
 // Internal service function to initialize draft for scrim
 export const initializeDraftForScrim = async (scrimId: string) => {

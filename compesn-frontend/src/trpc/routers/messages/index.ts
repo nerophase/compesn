@@ -11,7 +11,7 @@ import {
 } from "./messages.schema";
 import { db } from "../../../lib/database/db";
 import { and, asc, desc, eq, inArray, isNull, ne, or } from "drizzle-orm";
-import { conversationParticipants, conversations, messages, users } from "@compesn/shared/common/schemas";
+import { conversationParticipants, conversations, messages, users } from "@compesn/shared/schemas";
 import { TRPCError } from "@trpc/server";
 import Fuse from "fuse.js";
 import {
@@ -199,7 +199,7 @@ export const messagesRouter = createTRPCRouter({
 
 					return {
 						...conversation,
-						displayName: getConversationDisplayName(conversation as any, userId),
+						displayName: getConversationDisplayName(conversation, userId),
 						kindLabel:
 							conversation.kind === "DIRECT"
 								? "DM"
@@ -297,6 +297,12 @@ export const messagesRouter = createTRPCRouter({
 				.returning();
 
 			const sender = await db.query.users.findFirst({ where: eq(users.id, ctx.user.id) });
+			if (!sender) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Sender not found",
+				});
+			}
 
 			return { ...message, sender };
 		}),

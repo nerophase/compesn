@@ -31,7 +31,7 @@ import {
 	usersToTeams,
 	TTeamInsert,
 	teamInvites,
-} from "@compesn/shared/common/schemas";
+} from "@compesn/shared/schemas";
 import { sendEmail } from "../../../lib/resend";
 import { createNotification } from "../../../lib/notifications";
 import { TRPCError } from "@trpc/server";

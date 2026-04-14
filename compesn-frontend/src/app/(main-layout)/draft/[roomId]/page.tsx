@@ -5,16 +5,16 @@ import { MessageCircleIcon, UsersIcon, SwordsIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import DraftTeamHistory from "./draft-team-history";
 import DraftTeamData from "./draft-team-data";
-import { TChampion } from "@compesn/shared/common/types/champion";
+import { TChampion } from "@compesn/shared/types/champion";
 import ChampionSelector from "./champion-selector";
 import DraftStatusIndicator from "./draft-status-indicator";
-import { TMessage } from "@compesn/shared/common/types/message";
+import { TMessage } from "@compesn/shared/types/message";
 import { useSession } from "next-auth/react";
 import { socket } from "@/lib/sockets";
 import { useDraftData } from "@/hooks/use-draft-data";
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
-import { TChampionList } from "@compesn/shared/common/types/champion-list";
-import { TRoom } from "@compesn/shared/common/types/room";
+import { TTeamColor } from "@compesn/shared/types/team-color";
+import { TChampionList } from "@compesn/shared/types/champion-list";
+import { TRoom } from "@compesn/shared/types/room";
 import { addChampion } from "@/utils/champions";
 import LoaderSpin from "@/components/loader-spin";
 import { DraftContext } from "@/context/draft-context";
@@ -160,9 +160,10 @@ export default function Draft() {
 				drafts[prevRoom.currentDraft] = newDraft;
 				return { ...prevRoom, drafts };
 			});
+			if (!currentDraft.turn?.number) return;
 			socket.emit("draft:select-champion", {
 				selectedChampion: champion.fileName,
-				turnNumber: currentDraft.turn?.number,
+				turnNumber: currentDraft.turn.number,
 			});
 		},
 		[currentDraft, player, room.disabledChampions, setRoom, setSelectedChampion],
@@ -198,12 +199,14 @@ export default function Draft() {
 
 	const onAcceptRepeatPreviousTurn = useCallback(() => {
 		setRepeatPreviousTurnModalActive(false);
-		socket.emit("draft:repeat-previous-turn", currentDraft.turn?.number);
+		if (!currentDraft.turn?.number) return;
+		socket.emit("draft:repeat-previous-turn", currentDraft.turn.number);
 	}, [currentDraft]);
 
 	const onDeclineRepeatPreviousTurn = useCallback(() => {
 		setRepeatPreviousTurnModalActive(false);
-		socket.emit("draft:decline-repeat-previous-turn", currentDraft.turn?.number);
+		if (!currentDraft.turn?.number) return;
+		socket.emit("draft:decline-repeat-previous-turn", currentDraft.turn.number);
 	}, [currentDraft]);
 
 	if (loadingDraftData)

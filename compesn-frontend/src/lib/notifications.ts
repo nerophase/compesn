@@ -1,19 +1,28 @@
-import { TNotificationDataMap, TNotificationType } from "@compesn/shared/common/types/notification-type";
+import { TNotificationDataMap, TNotificationType } from "@compesn/shared/types/notification-type";
 import { env } from "@/environment";
 import { db } from "@/lib/database/db";
-import { notifications } from "@compesn/shared/common/schemas";
-import { io as createSocket, Socket } from "socket.io-client";
+import { TNotification, notifications } from "@compesn/shared/schemas";
+import { io as createSocket, type Socket } from "socket.io-client";
+import type {
+	NotificationClientToServerEvents,
+	NotificationServerToClientEvents,
+} from "@compesn/shared/types/realtime/socket";
 
-let notificationSocket: Socket | null = null;
+type NotificationSocket = Socket<
+	NotificationServerToClientEvents,
+	NotificationClientToServerEvents
+>;
 
-function getNotificationSocket() {
+let notificationSocket: NotificationSocket | null = null;
+
+function getNotificationSocket(): NotificationSocket | null {
 	if (typeof window !== "undefined") return null;
 
 	if (!notificationSocket) {
 		notificationSocket = createSocket(env.NEXT_PUBLIC_SERVER_URL, {
 			autoConnect: true,
 			transports: ["websocket"],
-		});
+		}) as NotificationSocket;
 	}
 
 	if (!notificationSocket.connected) {
@@ -29,7 +38,7 @@ export async function createNotification<T extends TNotificationType>(
 	type: T,
 	data: TNotificationDataMap[T],
 	triggerEvent?: boolean,
-): Promise<any>;
+): Promise<TNotification[]>;
 
 // New function signature with title and message
 export async function createNotification<T extends TNotificationType>(params: {
@@ -39,7 +48,7 @@ export async function createNotification<T extends TNotificationType>(params: {
 	message: string;
 	data: TNotificationDataMap[T];
 	triggerEvent?: boolean;
-}): Promise<any>;
+}): Promise<TNotification[]>;
 
 // Implementation
 export async function createNotification<T extends TNotificationType>(

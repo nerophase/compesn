@@ -1,7 +1,7 @@
 "use client";
 
-import { TDraft } from "@compesn/shared/common/types/draft";
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
+import { TDraft } from "@compesn/shared/types/draft";
+import { TTeamColor } from "@compesn/shared/types/team-color";
 import { cn, getChampionSmallImgURL } from "@/lib/utils";
 import Image from "next/image";
 import { memo } from "react";

@@ -1,9 +1,9 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { TChampion } from "@compesn/shared/common/types/champion";
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
-import { TRoomMember } from "@compesn/shared/common/types/room-member";
-import { TDraft } from "@compesn/shared/common/types/draft";
+import { TChampion } from "@compesn/shared/types/champion";
+import { TTeamColor } from "@compesn/shared/types/team-color";
+import { TRoomMember } from "@compesn/shared/types/room-member";
+import { TDraft } from "@compesn/shared/types/draft";
 import { env } from "@/environment";
 
 export function cn(...inputs: ClassValue[]) {

@@ -1,6 +1,6 @@
 import { DraftHistoryByUserSchema } from "./draft-history.schema";
 import { eq, or, desc } from "drizzle-orm";
-import { draftMembers, scrimDrafts, scrims, teams } from "@compesn/shared/common/schemas";
+import { draftMembers, scrimDrafts, scrims, teams } from "@compesn/shared/schemas";
 import { baseProcedure, createTRPCRouter, authenticatedProcedure } from "@/trpc/init";
 import { db } from "@/lib/database/db";
 import { z } from "zod";
@@ -19,7 +19,8 @@ export const draftHistoryRouter = createTRPCRouter({
 				members: { where: eq(draftMembers.userId, input.userId) },
 			},
 		});
-		const grouped: { roomId: string; drafts: any[] }[] = [];
+		type DraftHistoryItem = (typeof draftsHistory)[number];
+		const grouped: { roomId: string; drafts: DraftHistoryItem[] }[] = [];
 		for (const draft of draftsHistory) {
 			const existing = grouped.find((e) => e.roomId === draft.roomId);
 			if (existing) existing.drafts.push(draft);

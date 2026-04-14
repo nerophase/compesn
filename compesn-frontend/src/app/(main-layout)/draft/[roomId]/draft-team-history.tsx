@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
+import { TTeamColor } from "@compesn/shared/types/team-color";
 import { HistoryIcon } from "lucide-react";
 import Image from "next/image";
 import { getChampionImage } from "@/utils/champions";
-import { TDraft } from "@compesn/shared/common/types/draft";
+import { TDraft } from "@compesn/shared/types/draft";
 
 export default function DraftTeamHistory({
 	teamColor,

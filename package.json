@@ -5,19 +5,21 @@
 		"type": "git",
 		"url": "https://github.com/nerophase/compesn.git"
 	},
-	"packageManager": "pnpm@10.28.1",
+	"packageManager": "pnpm@10.33.0",
 	"scripts": {
 		"build": "pnpm -r build",
 		"dev": "pnpm -r --parallel --filter ./compesn-backend --filter ./compesn-frontend dev",
 		"build:shared": "pnpm --filter ./compesn-shared build",
 		"build:frontend": "pnpm --filter ./compesn-frontend build",
 		"build:backend": "pnpm --filter ./compesn-backend build",
+		"check:no-explicit-any": "sh -c '! rg -n \"as any|:\\\\s*any\\\\b|<any>|Array<any>|Record<string, any>|Promise<any>|onError\\\\(error: any\\\\)|\\\\(.*: any\\\\)\" compesn-frontend/src compesn-backend/src compesn-shared/src'",
 		"dev:frontend": "pnpm --filter ./compesn-frontend dev",
 		"dev:backend": "pnpm --filter ./compesn-backend dev",
 		"lint": "pnpm -r lint",
 		"start:frontend": "pnpm --filter ./compesn-frontend start",
 		"start:backend": "pnpm --filter ./compesn-backend start",
-		"typecheck": "pnpm -r typecheck"
+		"typecheck": "pnpm -r typecheck",
+		"pretty": "npx prettier --write '**/*.{js,jsx,mjs,cjs,ts,tsx,json}'"
 	},
 	"dependencies": {
 		"drizzle-kit": "^0.31.10"

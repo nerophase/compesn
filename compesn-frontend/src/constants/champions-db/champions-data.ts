@@ -1,4 +1,4 @@
-import { TChampion } from "@compesn/shared/common/types/champion";
+import { TChampion } from "@compesn/shared/types/champion";
 
 export const CHAMPIONS: TChampion[] = [
 	{

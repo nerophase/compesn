@@ -1,7 +1,7 @@
 import { redis } from "@/lib/database/redis";
 import { RiotApiService, RiotAccount, LeagueEntry, Summoner, MatchDetails } from "./riot-api";
 import { TPlatform } from "@/constants/regions";
-import { TSummonerProfile } from "@compesn/shared/common/schemas";
+import { TSummonerProfile } from "@compesn/shared/schemas";
 import { TRegion } from "@/trpc/routers/teams/teams.schema";
 
 // Cache TTL constants (in seconds)
@@ -78,7 +78,7 @@ export class RiotAPICacheService {
 		}
 	}
 
-	private isStale(cachedData: CachedData<any>, staleThreshold: number): boolean {
+	private isStale<T>(cachedData: CachedData<T>, staleThreshold: number): boolean {
 		const age = (Date.now() - cachedData.timestamp) / 1000;
 		return age > staleThreshold;
 	}

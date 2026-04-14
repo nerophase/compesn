@@ -40,6 +40,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import type { AppRouter } from "@/trpc/routers/_app";
 
 const RANK_TIERS = [
 	{ value: "IRON", label: "Iron", color: "bg-gray-600" },
@@ -86,6 +87,23 @@ const STATUS_OPTIONS = [
 		color: "bg-gray-600",
 		description: "Scrim has been completed",
 	},
+];
+
+type ScrimDetail = Awaited<ReturnType<AppRouter["scrims"]["getById"]>>;
+type ScrimAction =
+	| "request"
+	| "accept"
+	| "confirm"
+	| "cancel"
+	| "cancelRequest"
+	| "complete"
+	| "deny";
+const ACTIONS_WITH_AVAILABILITY_CHECK: ScrimAction[] = [
+	"request",
+	"cancelRequest",
+	"confirm",
+	"complete",
+	"cancel",
 ];
 
 export default function ScrimDetailPage({ scrimId }: { scrimId: string }) {
@@ -203,14 +221,14 @@ export default function ScrimDetailPage({ scrimId }: { scrimId: string }) {
 		return new Date(startTime) < new Date();
 	};
 
-	const canUserPerformAction = (action: string, scrim: any, userId?: string) => {
+	const canUserPerformAction = (action: ScrimAction, scrim: ScrimDetail, userId?: string) => {
 		if (!scrim || !userId) return false;
 
 		const isCreatingTeamMember = scrim.creatingTeam?.members?.some(
-			(m: any) => m.userId === userId,
+			(member) => member.userId === userId,
 		);
 		const isOpponentTeamMember = scrim.opponentTeam?.members?.some(
-			(m: any) => m.userId === userId,
+			(member) => member.userId === userId,
 		);
 		const isInvolved = isCreatingTeamMember || isOpponentTeamMember;
 
@@ -357,8 +375,8 @@ export default function ScrimDetailPage({ scrimId }: { scrimId: string }) {
 		scrim.status === "REQUESTED" && scrim.opponentTeam ? [scrim.opponentTeam] : [];
 	const canRequestScrim = canUserPerformAction("request", scrim, currentUserId);
 	const showLoggedOutRequestState = !isLoggedIn && scrim.status === "OPEN";
-	const hasAvailableActions = ["request", "cancelRequest", "confirm", "complete", "cancel"].some(
-		(action) => canUserPerformAction(action, scrim, currentUserId),
+	const hasAvailableActions = ACTIONS_WITH_AVAILABILITY_CHECK.some((action) =>
+		canUserPerformAction(action, scrim, currentUserId),
 	);
 
 	return (
@@ -464,7 +482,7 @@ export default function ScrimDetailPage({ scrimId }: { scrimId: string }) {
 								<div className="space-y-2">
 									<h4 className="font-medium text-white">Roles Needed</h4>
 									<div className="flex gap-1">
-										{scrim.rolesNeeded.map((role: any) => (
+										{scrim.rolesNeeded.map((role) => (
 											<Badge
 												key={role}
 												variant="outline"
@@ -605,7 +623,7 @@ export default function ScrimDetailPage({ scrimId }: { scrimId: string }) {
 								</h4>
 								<p className="text-sm text-gray-400 mb-2">Creating Team</p>
 								<div className="space-y-1">
-									{scrim.creatingTeam.members?.map((member: any) => (
+									{scrim.creatingTeam.members?.map((member) => (
 										<div
 											key={member.id}
 											className="flex items-center justify-between text-sm"
@@ -632,7 +650,7 @@ export default function ScrimDetailPage({ scrimId }: { scrimId: string }) {
 									</h4>
 									<p className="text-sm text-gray-400 mb-2">Opponent Team</p>
 									<div className="space-y-1">
-										{scrim.opponentTeam.members?.map((member: any) => (
+										{scrim.opponentTeam.members?.map((member) => (
 											<div
 												key={member.id}
 												className="flex items-center justify-between text-sm"

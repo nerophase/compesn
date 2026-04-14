@@ -1,10 +1,9 @@
-import { Server } from "socket.io";
 import { roomService } from "@/services/room";
 import { getCurrentChampion, removeChampion } from "@/utils/champions";
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
-import { TDraft } from "@compesn/shared/common/types/draft";
-import { TRoom } from "@compesn/shared/common/schemas/rooms";
-import { TChampion } from "@compesn/shared/common/types/champion";
+import { TTeamColor } from "@compesn/shared/types/team-color";
+import { TDraft } from "@compesn/shared/types/draft";
+import { TRoom } from "@compesn/shared/schemas/rooms";
+import { TChampion } from "@compesn/shared/types/champion";
 import {
 	getNextTurnNumber,
 	getPreviousEnabledTurnNumber,
@@ -12,10 +11,11 @@ import {
 } from "@compesn/shared/draft/turns";
 import { env } from "@/environment";
 import { draftRoomChannel } from "@/utils/socket-rooms";
+import type { DraftServer } from "@/websockets/socket-types";
 
 export const timeouts: { [key: string]: NodeJS.Timeout } = {};
 
-export const setTurnTimer = (draft: TDraft, roomId: string, io: Server) => {
+export const setTurnTimer = (draft: TDraft, roomId: string, io: DraftServer) => {
 	if (draft.currentTurnTime > 0) {
 		const timeout = setTimeout(
 			async () => {
@@ -55,7 +55,7 @@ export const setTurnTimer = (draft: TDraft, roomId: string, io: Server) => {
 
 export const nextTurn = async (
 	room: TRoom,
-	io: Server,
+	io: DraftServer,
 	resetTurn: boolean = false,
 	repeatPreviousTurn: boolean = false,
 ) => {
@@ -93,7 +93,7 @@ export const nextTurn = async (
 	setTurnTimer(currentDraft, roomId, io);
 };
 
-export const noBan = async (room: TRoom, io: Server) => {
+export const noBan = async (room: TRoom, io: DraftServer) => {
 	const currentDraft = room.drafts[room.currentDraft];
 	const turn = currentDraft.turn;
 
@@ -103,7 +103,7 @@ export const noBan = async (room: TRoom, io: Server) => {
 	}
 };
 
-export const resetTurn = async (room: TRoom, io: Server) => {
+export const resetTurn = async (room: TRoom, io: DraftServer) => {
 	const roomId = room.id;
 	const currentDraft = room.drafts[room.currentDraft];
 	removeChampion(currentDraft, currentDraft.turn);
@@ -112,7 +112,7 @@ export const resetTurn = async (room: TRoom, io: Server) => {
 	io.to(draftRoomChannel(roomId)).emit("draft:reset-turn");
 };
 
-export const resetDraft = async (room: TRoom, io: Server) => {
+export const resetDraft = async (room: TRoom, io: DraftServer) => {
 	const roomId = room.id;
 	const currentDraft = room.drafts[room.currentDraft];
 	currentDraft.turnStart = 0;
@@ -138,7 +138,7 @@ export const resetDraft = async (room: TRoom, io: Server) => {
 	io.to(draftRoomChannel(roomId)).emit("draft:reset-draft");
 };
 
-export const terminateDraft = async (room: TRoom, io: Server) => {
+export const terminateDraft = async (room: TRoom, io: DraftServer) => {
 	const roomId = room.id;
 	const currentDraft = room.drafts[room.currentDraft];
 	currentDraft.state = "finished";
@@ -197,7 +197,11 @@ export const terminateDraft = async (room: TRoom, io: Server) => {
 	// }
 };
 
-export const requestedRepeatPreviousTurn = async (room: TRoom, team: TTeamColor, io: Server) => {
+export const requestedRepeatPreviousTurn = async (
+	room: TRoom,
+	team: TTeamColor,
+	io: DraftServer,
+) => {
 	const roomId = room.id;
 	const currentDraft = room.drafts[room.currentDraft];
 	currentDraft.state = "requested-repeat-prev-turn";
@@ -221,7 +225,7 @@ export const requestedRepeatPreviousTurn = async (room: TRoom, team: TTeamColor,
 	});
 };
 
-export const repeatPreviousTurn = async (room: TRoom, io: Server) => {
+export const repeatPreviousTurn = async (room: TRoom, io: DraftServer) => {
 	const roomId = room.id;
 	const currentDraft = room.drafts[room.currentDraft];
 	if (currentDraft.turn?.number) {
@@ -245,7 +249,7 @@ export const repeatPreviousTurn = async (room: TRoom, io: Server) => {
 	}
 };
 
-export const declineRepeatPreviousTurn = async (room: TRoom, io: Server) => {
+export const declineRepeatPreviousTurn = async (room: TRoom, io: DraftServer) => {
 	const roomId = room.id;
 
 	setTurnTimer(room.drafts[room.currentDraft], roomId, io);
@@ -255,14 +259,14 @@ export const declineRepeatPreviousTurn = async (room: TRoom, io: Server) => {
 
 	await roomService.updateRoom(roomId, room);
 
-	io.to(draftRoomChannel(roomId)).emit("draft:repeat-previous-turn");
+	io.to(draftRoomChannel(roomId)).emit("draft:decline-repeat-previous-turn");
 	io.to(draftRoomChannel(roomId)).emit("draft:update", {
 		draft: room.drafts[room.currentDraft],
 		draftIdx: room.currentDraft,
 	});
 };
 
-export const nextDraft = async (room: TRoom, swapTeams: boolean, io: Server) => {
+export const nextDraft = async (room: TRoom, swapTeams: boolean, io: DraftServer) => {
 	const roomId = room.id;
 
 	if (!(room.currentDraft + 1 < room.draftsCount)) return;

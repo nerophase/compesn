@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import AccountManager from "@/components/account-manager";
 import DashboardHeader from "@/components/dashboard-top";
-import { TUser } from "@compesn/shared/common/types/user";
-import { TAccount } from "@compesn/shared/common/types/account";
+import { TUser } from "@compesn/shared/types/user";
+import { TAccount } from "@compesn/shared/types/account";
 import { env, ROUTES } from "@/environment";
 
 export default function AccountsPageClient({

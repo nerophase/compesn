@@ -5,7 +5,7 @@ import {
 	teamMembers,
 	teams,
 	users,
-} from "@compesn/shared/common/schemas";
+} from "@compesn/shared/schemas";
 import { and, eq, inArray, isNull, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 

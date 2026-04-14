@@ -7,7 +7,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
-import { TStyles } from "@compesn/shared/common/types/styles";
+import { TStyles } from "@compesn/shared/types/styles";
 
 const TimeOverModal = memo(function TimeOverModal({
 	isActive,

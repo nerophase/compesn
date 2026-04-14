@@ -1,5 +1,5 @@
-import { TDraftMode } from "@compesn/shared/common/types/draft-mode";
-import { TPickType } from "@compesn/shared/common/types/tournament";
+import { TDraftMode } from "@compesn/shared/types/draft-mode";
+import { TPickType } from "@compesn/shared/types/tournament";
 
 export const DRAFT_MODE_OPTIONS: {
 	label: string;

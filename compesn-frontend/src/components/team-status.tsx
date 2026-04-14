@@ -3,7 +3,7 @@ import { cn, draftTeamBgColor, getChampionLargeImgURL, getChampionSmallImgURL } 
 import useDraft from "@/hooks/use-draft";
 import { memo } from "react";
 import { Tooltip } from "react-tooltip";
-import { TTurnType } from "@compesn/shared/common/types/turn-type";
+import { TTurnType } from "@compesn/shared/types/turn-type";
 
 const TeamStatus = memo(function TeamStatus({
 	team,

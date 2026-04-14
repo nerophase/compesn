@@ -9,7 +9,7 @@ import {
 } from "./friends.schema";
 import { db } from "../../../lib/database/db";
 import { and, eq, or, desc, ne } from "drizzle-orm";
-import { friendships, users } from "@compesn/shared/common/schemas";
+import { friendships, users } from "@compesn/shared/schemas";
 import { TRPCError } from "@trpc/server";
 
 export const friendsRouter = createTRPCRouter({

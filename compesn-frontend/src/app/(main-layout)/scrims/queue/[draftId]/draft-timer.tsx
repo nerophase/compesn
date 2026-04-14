@@ -3,12 +3,13 @@
 import { Badge } from "@/components/ui/badge";
 import { formatTimeRemaining } from "@/utils/draft-time";
 import { Clock, AlertTriangle } from "lucide-react";
+import type { QueueDraft, QueueDraftActionType } from "./draft-types";
 
 interface DraftTimerProps {
-	draft: any;
+	draft: QueueDraft;
 	timeRemaining: number;
 	isUserTurn: boolean;
-	currentAction: "PICK" | "BAN";
+	currentAction: QueueDraftActionType;
 }
 
 export function DraftTimer({ draft, timeRemaining, isUserTurn, currentAction }: DraftTimerProps) {

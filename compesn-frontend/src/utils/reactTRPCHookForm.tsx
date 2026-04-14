@@ -13,13 +13,19 @@ type UseZodForm<TInput extends FieldValues> = UseFormReturn<TInput> & {
 	id: string;
 };
 
-export function useZodForm<TSchema extends ZodType<any, any>>(
-	props: Omit<UseFormProps<z.infer<TSchema>>, "resolver"> & { schema: TSchema },
-): UseZodForm<z.infer<TSchema>> {
-	const form = useForm<z.infer<TSchema>>({
+type AnyZodType = z.ZodTypeAny;
+type MutationFormValues<TSchema extends AnyZodType> = z.infer<TSchema>;
+type TRPCZodErrorShape = {
+	fieldErrors: Record<string, string[]>;
+};
+
+export function useZodForm<TSchema extends AnyZodType>(
+	props: Omit<UseFormProps<MutationFormValues<TSchema>>, "resolver"> & { schema: TSchema },
+): UseZodForm<MutationFormValues<TSchema>> {
+	const form = useForm<MutationFormValues<TSchema>>({
 		...props,
-		resolver: zodResolver(props.schema, undefined, { raw: true }),
-	}) as UseZodForm<z.infer<TSchema>>;
+		resolver: zodResolver(props.schema),
+	}) as UseZodForm<MutationFormValues<TSchema>>;
 
 	form.id = useId();
 
@@ -30,7 +36,7 @@ export function useZodForm<TSchema extends ZodType<any, any>>(
 // 2. tRPC mutation form integration
 // -----------------------------------------------------------------------------
 type MutationResult<TInput> = {
-	mutateAsync: (input: TInput) => Promise<any>;
+	mutateAsync: (input: TInput) => Promise<unknown>;
 	isPending: boolean;
 };
 
@@ -45,26 +51,25 @@ type MutationResult<TInput> = {
  *  - `onSubmit`: pass this to `<form onSubmit={onSubmit}>` (already wrapped in `.handleSubmit`)
  *  - `isLoading`: mirror of `mutation.isLoading`
  */
-export function useTRPCMutationForm<TSchema extends ZodType<any, any>>(
-	mutation: MutationResult<z.infer<TSchema>>,
-	props: Omit<UseFormProps<z.infer<TSchema>>, "resolver"> & { schema: TSchema },
+export function useTRPCMutationForm<TSchema extends AnyZodType>(
+	mutation: MutationResult<MutationFormValues<TSchema>>,
+	props: Omit<UseFormProps<MutationFormValues<TSchema>>, "resolver"> & { schema: TSchema },
 ) {
 	const form = useZodForm(props);
 
 	// Our server‐calling submit handler
-	const onSubmit: SubmitHandler<z.infer<TSchema>> = async (values) => {
+	const onSubmit: SubmitHandler<MutationFormValues<TSchema>> = async (values) => {
 		try {
 			await mutation.mutateAsync(values);
 		} catch (error) {
 			// Map Zod errors returned via tRPC
-			if (error instanceof TRPCClientError && (error.data as any)?.zodError) {
-				const zodErr = (error.data as any).zodError as {
-					fieldErrors: Record<string, string[]>;
-				};
+			const zodError = error instanceof TRPCClientError ? error.data?.zodError : undefined;
+			if (zodError && typeof zodError === "object" && "fieldErrors" in zodError) {
+				const zodErr = zodError as TRPCZodErrorShape;
 
 				for (const [field, msgs] of Object.entries(zodErr.fieldErrors)) {
 					if (msgs?.length) {
-						form.setError(field as any, {
+						form.setError(field as Parameters<typeof form.setError>[0], {
 							type: "server",
 							message: msgs.join(", "),
 						});
@@ -107,19 +112,19 @@ export function TRPCForm<TInput extends FieldValues>(
 
 export function SubmitButton(
 	props: Omit<React.ComponentProps<"button">, "type" | "form"> & {
-		form?: UseFormReturn<any> & { id?: string };
+		form?: UseFormReturn<FieldValues> & { id?: string };
 	},
 ) {
 	const formIdFallback = useId();
 	const context = useFormContext();
-	const form = props.form ?? context;
+	const form = (props.form ?? context) as (UseFormReturn<FieldValues> & { id?: string }) | null;
 
 	if (!form) {
 		throw new Error("SubmitButton must be inside <TRPCForm> or receive a `form` prop");
 	}
 
 	const { isSubmitting } = form.formState;
-	const formId = (form as any).id || formIdFallback;
+	const formId = form.id ?? formIdFallback;
 
 	return (
 		<button {...props} form={formId} type="submit" disabled={isSubmitting}>

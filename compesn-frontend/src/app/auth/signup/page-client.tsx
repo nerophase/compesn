@@ -157,7 +157,7 @@ export default function SignUpPageClient({
 			// 		router.push("/");
 			// 	}
 			// }
-		} catch (e: any) {
+		} catch (e: unknown) {
 			// const error: string = e.response?.data?.error;
 			// if (error) {
 			// 	if (error.includes("duplicate key error")) {

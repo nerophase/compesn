@@ -1,13 +1,14 @@
 import { roomService } from "@/services/room";
-import { TRoomMember } from "@compesn/shared/common/types/room-member";
-import { Socket } from "socket.io";
+import { TRoomMember } from "@compesn/shared/types/room-member";
+import type { DraftSocket } from "@/websockets/socket-types";
 
 type Room = NonNullable<Awaited<ReturnType<typeof roomService.getRoomById>>>;
+type DraftErrorEvent = "error:room" | "error:joining-room" | "error:not-connected";
 
 export const requireRoomById = async (
-	socket: Socket,
+	socket: DraftSocket,
 	roomId: string,
-	errorEvent: string = "error:room",
+	errorEvent: DraftErrorEvent = "error:room",
 	errorMessage: string = "Wrong room id.",
 ): Promise<Room | null> => {
 	const room = await roomService.getRoomById(roomId);

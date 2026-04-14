@@ -1,9 +1,10 @@
 import Credentials from "next-auth/providers/credentials";
 import NextAuth from "next-auth";
 import Discord from "next-auth/providers/discord";
+import type { JWT } from "next-auth/jwt";
 import { db } from "./database/db";
 import { eq } from "drizzle-orm";
-import { accounts, users } from "@compesn/shared/common/schemas";
+import { accounts, users } from "@compesn/shared/schemas";
 import { checkPassword } from "@/utils/password";
 import { getTokens } from "@/utils/auth";
 import axios from "axios";
@@ -271,20 +272,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 		async jwt({ token, user, trigger, account, profile, session }) {
 			if (account?.provider === "discord" || account?.provider === "riot") {
 				try {
-					return (profile?.token as any) || { id: "" };
+					const profileToken = (profile as { token?: JWT } | undefined)?.token;
+					return profileToken || ({ id: "" } as JWT);
 				} catch {
 					return {
 						id: "",
-					};
+					} as JWT;
 				}
 			}
 
 			if (trigger === "update") {
-				return { ...token, name: session.user.name };
+				return { ...token, name: session.user.name as string };
 			}
 
 			if (typeof user !== "undefined") {
-				return user;
+				return user as JWT;
 			}
 
 			return token;

@@ -1,5 +1,5 @@
-import type { TNotification } from "@compesn/shared/common/types/notification";
-import type { TNotificationType } from "@compesn/shared/common/types/notification-type";
+import type { TNotification } from "@compesn/shared/types/notification";
+import type { TNotificationType } from "@compesn/shared/types/notification-type";
 
 export type TNotificationTeamsById = Record<
 	string,

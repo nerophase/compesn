@@ -5,7 +5,7 @@ import { cleanString } from "@/utils/sanitizer";
 import useDraft from "@/hooks/use-draft";
 import { draftTeamTextColor } from "@/lib/utils";
 import { ArrowRightLeftIcon } from "lucide-react";
-import { TMessage } from "@compesn/shared/common/types/message";
+import { TMessage } from "@compesn/shared/types/message";
 
 const ChatBox = memo(function ChatBox({
 	messages,

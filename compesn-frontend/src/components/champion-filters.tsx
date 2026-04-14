@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { Dispatch, SetStateAction } from "react";
 
 const filters = [
 	{
@@ -25,7 +26,9 @@ const filters = [
 		name: "no-role",
 		img: "/imgs/roles/circle-off.svg",
 	},
-];
+] as const;
+
+type ChampionFilterName = (typeof filters)[number]["name"];
 
 export default function ChampionFilters({
 	activeFilters,
@@ -33,8 +36,8 @@ export default function ChampionFilters({
 	activeColor,
 	showNoRole,
 }: {
-	activeFilters: string[];
-	setActiveFilters: any;
+	activeFilters: ChampionFilterName[];
+	setActiveFilters: Dispatch<SetStateAction<ChampionFilterName[]>>;
 	activeColor: string;
 	showNoRole?: boolean;
 }) {

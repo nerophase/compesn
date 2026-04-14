@@ -1,4 +1,4 @@
-import type { TScrim } from "@compesn/shared/common/schemas";
+import type { TScrim } from "@compesn/shared/schemas";
 
 export type ScrimStatus = TScrim["status"];
 

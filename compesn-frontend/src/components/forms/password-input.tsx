@@ -3,23 +3,23 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
-import { UseFormReturn } from "react-hook-form";
+import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 
-type PasswordInputProps = {
-	form?: UseFormReturn<any>;
-	formData?: UseFormReturn<any>;
-	name: string;
+type PasswordInputProps<TFormValues extends FieldValues> = {
+	form?: UseFormReturn<TFormValues>;
+	formData?: UseFormReturn<TFormValues>;
+	name: Path<TFormValues>;
 	label: string;
 	placeholder?: string;
 } & React.ComponentProps<"input">;
 
-export default function PasswordInput({
+export default function PasswordInput<TFormValues extends FieldValues>({
 	form,
 	formData,
 	name,
 	label,
 	placeholder,
-}: PasswordInputProps) {
+}: PasswordInputProps<TFormValues>) {
 	const [showPassword, setShowPassword] = useState(false);
 	const activeForm = formData ?? form;
 

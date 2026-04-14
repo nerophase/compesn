@@ -1,7 +1,7 @@
 // packages/db/src/index.ts
 import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres, { type Sql } from "postgres";
-import * as schema from "@compesn/shared/common/schemas";
+import * as schema from "@compesn/shared/schemas";
 import { env } from "@/environment";
 
 export { schema };

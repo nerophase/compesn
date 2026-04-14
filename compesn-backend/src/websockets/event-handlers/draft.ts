@@ -1,4 +1,3 @@
-import { Server, Socket } from "socket.io";
 import {
 	declineRepeatPreviousTurn,
 	nextTurn,
@@ -10,7 +9,7 @@ import {
 	terminateDraft,
 	noBan,
 } from "@/lib/draft";
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
+import { TTeamColor } from "@compesn/shared/types/team-color";
 import { addChampion } from "@/utils/champions";
 import { championService } from "@/services/champion";
 import { roomService } from "@/services/room";
@@ -20,9 +19,15 @@ import {
 	requireDraftTeamContext,
 	requireRoomContext,
 } from "@/websockets/guards/draft-context";
+import type {
+	DraftSelectChampionPayload,
+	DraftSetReadyPayload,
+	DraftTurnNumberPayload,
+} from "@compesn/shared/types/realtime/socket";
+import type { DraftServer, DraftSocket } from "@/websockets/socket-types";
 
-export const registerDraftHandlers = (io: Server, socket: Socket) => {
-	socket.on("draft:set-ready", async ({ ready }: { ready: boolean }) => {
+export const registerDraftHandlers = (io: DraftServer, socket: DraftSocket) => {
+	socket.on("draft:set-ready", async ({ ready }: DraftSetReadyPayload) => {
 		const context = await requireDraftTeamContext(socket, "error:not-connected");
 
 		if (!context) {
@@ -50,13 +55,7 @@ export const registerDraftHandlers = (io: Server, socket: Socket) => {
 
 	socket.on(
 		"draft:select-champion",
-		async ({
-			selectedChampion,
-			turnNumber,
-		}: {
-			selectedChampion: string;
-			turnNumber: number;
-		}) => {
+		async ({ selectedChampion, turnNumber }: DraftSelectChampionPayload) => {
 			const context = await requireDraftTeamContext(socket);
 
 			if (!context) {
@@ -94,7 +93,7 @@ export const registerDraftHandlers = (io: Server, socket: Socket) => {
 		},
 	);
 
-	socket.on("draft:lock-champion", async ({ turnNumber }: { turnNumber: number }) => {
+	socket.on("draft:lock-champion", async ({ turnNumber }: DraftTurnNumberPayload) => {
 		const context = await requireDraftTeamContext(socket);
 
 		if (!context) {
@@ -111,7 +110,7 @@ export const registerDraftHandlers = (io: Server, socket: Socket) => {
 		await nextTurn(room, io);
 	});
 
-	socket.on("draft:no-ban", async ({ turnNumber }: { turnNumber: number }) => {
+	socket.on("draft:no-ban", async ({ turnNumber }: DraftTurnNumberPayload) => {
 		const context = await requireDraftTeamContext(socket);
 
 		if (!context) {

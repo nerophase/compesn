@@ -1,11 +1,16 @@
 import { createTRPCRouter, authenticatedProcedure } from "../../init";
-import { PlayerMetricsSchema, PlayerMetricsResponseSchema } from "./stats.schema";
+import {
+	GameStatsSchema,
+	PlayerMetricsSchema,
+	PlayerMetricsResponseSchema,
+} from "./stats.schema";
 import { db } from "../../../lib/database/db";
 import { eq } from "drizzle-orm";
-import { users, scrimParticipants } from "@compesn/shared/common/schemas";
+import { users, scrimParticipants } from "@compesn/shared/schemas";
 import { TRPCError } from "@trpc/server";
 import { RiotAPICacheService } from "../../../lib/riot-api-cache";
 import { TRegion } from "../teams/teams.schema";
+import { z } from "zod";
 
 export const statsRouter = createTRPCRouter({
 	// Get player metrics aggregated from either Riot or scrim sources
@@ -266,7 +271,7 @@ export const statsRouter = createTRPCRouter({
 });
 
 // Helper function to calculate aggregate statistics
-function calculateAggregateStats(games: any[]): {
+function calculateAggregateStats(games: Array<z.infer<typeof GameStatsSchema>>): {
 	totalGames: number;
 	winRate: number;
 	averageKDA: {

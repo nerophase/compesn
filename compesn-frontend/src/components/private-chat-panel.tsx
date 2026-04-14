@@ -82,22 +82,22 @@ export const PrivateChatPanel = () => {
 									<div
 										key={idx}
 										className={`flex ${
-											m.fromUserId === currentUserId
+											m.senderId === currentUserId
 												? "justify-end"
 												: "justify-start"
 										}`}
 									>
 										<div
 											className={`px-3 py-2 rounded-lg max-w-xs ${
-												m.fromUserId === currentUserId
+												m.senderId === currentUserId
 													? "bg-cyan-600 text-white"
 													: "bg-gray-800 text-gray-200"
 											}`}
 										>
 											<div className="text-[10px] text-gray-300 mb-1">
-												{m.fromUserId}
+												{m.senderId}
 											</div>
-											<div>{m.text}</div>
+											<div>{m.content}</div>
 										</div>
 									</div>
 								))

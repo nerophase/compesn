@@ -1,13 +1,14 @@
 import { roomService } from "@/services/room";
-import { Server, Socket } from "socket.io";
-import { TRoomMember } from "@compesn/shared/common/types/room-member";
+import { TRoomMember } from "@compesn/shared/types/room-member";
 import { getTeam } from "@/utils";
 import { generateId } from "@/utils/password";
 import { draftRoomChannel, draftTeamChannel } from "@/utils/socket-rooms";
 import { findRoomMemberBySocketId, requireRoomById } from "@/websockets/guards/room-context";
+import type { RoomJoinPayload, RoomJoinTeamPayload } from "@compesn/shared/types/realtime/socket";
+import type { DraftServer, DraftSocket } from "@/websockets/socket-types";
 
-export const registerRoomHandlers = (io: Server, socket: Socket) => {
-	socket.on("room:join-room", ({ roomId }) => {
+export const registerRoomHandlers = (io: DraftServer, socket: DraftSocket) => {
+	socket.on("room:join-room", ({ roomId }: RoomJoinPayload) => {
 		const previousRoomId = socket.data.draftRoomId;
 
 		if (previousRoomId && previousRoomId !== roomId) {
@@ -24,7 +25,7 @@ export const registerRoomHandlers = (io: Server, socket: Socket) => {
 	});
 	socket.on(
 		"room:join-team",
-		async ({ roomId, teamId, userId, name, isGuest, autoJoin }: any) => {
+		async ({ roomId, teamId, userId, name, isGuest }: RoomJoinTeamPayload) => {
 			const room = await requireRoomById(socket, roomId, "error:joining-room");
 			if (!room) {
 				return;
@@ -49,11 +50,17 @@ export const registerRoomHandlers = (io: Server, socket: Socket) => {
 				let playerNumber = -1;
 
 				if (team === "blue") {
-					playerNumber = ++room.members.filter((member: TRoomMember) => member.team === "blue").length;
+					playerNumber = ++room.members.filter(
+						(member: TRoomMember) => member.team === "blue",
+					).length;
 				} else if (team === "red") {
-					playerNumber = ++room.members.filter((member: TRoomMember) => member.team === "red").length;
+					playerNumber = ++room.members.filter(
+						(member: TRoomMember) => member.team === "red",
+					).length;
 				} else if (!team) {
-					playerNumber = ++room.members.filter((member: TRoomMember) => member.team === undefined).length;
+					playerNumber = ++room.members.filter(
+						(member: TRoomMember) => member.team === undefined,
+					).length;
 				}
 
 				if (team) {
@@ -138,7 +145,9 @@ export const registerRoomHandlers = (io: Server, socket: Socket) => {
 
 			if (!room || !member) return;
 
-			room.members = room.members.filter((roomMember: TRoomMember) => roomMember.name !== member.name);
+			room.members = room.members.filter(
+				(roomMember: TRoomMember) => roomMember.name !== member.name,
+			);
 
 			await roomService.updateRoom(roomId, room);
 			io.to(draftRoomChannel(roomId)).emit("room:update-members", room.members);

@@ -1,8 +1,8 @@
 import useDraft from "@/hooks/use-draft";
 import { socket } from "@/lib/sockets";
 import { cn, sortRoomMembers } from "@/lib/utils";
-import { TRoomMember } from "@compesn/shared/common/types/room-member";
-import { TTeamColor } from "@compesn/shared/common/types/team-color";
+import { TRoomMember } from "@compesn/shared/types/room-member";
+import { TTeamColor } from "@compesn/shared/types/team-color";
 import { PlusIcon } from "lucide-react";
 import { useMemo } from "react";
 import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "@/components/ui/context-menu";

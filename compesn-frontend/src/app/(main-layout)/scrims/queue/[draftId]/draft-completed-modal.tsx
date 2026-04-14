@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import {
 	Dialog,
@@ -16,10 +15,11 @@ import { useTRPC } from "@/trpc/client";
 import LoaderSpin from "@/components/loader-spin";
 import { Trophy, Target, Ban } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import type { QueueDraft } from "./draft-types";
 
 interface DraftCompletedModalProps {
 	isOpen: boolean;
-	draft: any;
+	draft: QueueDraft | null;
 	onClose: () => void;
 }
 

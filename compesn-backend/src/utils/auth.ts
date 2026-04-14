@@ -1,10 +1,15 @@
-import { TUserRole } from "@compesn/shared/common/types/user-role";
+import { TUserRole } from "@compesn/shared/types/user-role";
 import { env } from "@/environment";
 import jwt from "jsonwebtoken";
 
+type TokenPayload = {
+	userId: string;
+	role: TUserRole;
+};
+
 export function verifyRefresh(userId: string, token: string) {
 	try {
-		const decoded: any = jwt.verify(token, env.APP_SECRET);
+		const decoded = jwt.verify(token, env.APP_SECRET) as TokenPayload;
 		return decoded.userId === userId;
 	} catch (error) {
 		return false;

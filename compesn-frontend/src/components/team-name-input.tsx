@@ -12,9 +12,21 @@ import {
 	CommandList,
 } from "@/components/ui/command";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { TTeam } from "@compesn/shared/common/schemas";
+import { TTeam } from "@compesn/shared/schemas";
+import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 
-export function TeamNameInput({
+type TeamNameInputProps<TFormValues extends FieldValues> = {
+	form: UseFormReturn<TFormValues>;
+	teams: TTeam[];
+	userTeams: TTeam[];
+	name: Path<TFormValues>;
+	blocked?: boolean;
+	callback?: (value?: string) => void;
+	placeholder?: string;
+	className?: string;
+};
+
+export function TeamNameInput<TFormValues extends FieldValues>({
 	form,
 	teams,
 	userTeams,
@@ -23,16 +35,7 @@ export function TeamNameInput({
 	callback,
 	placeholder = "Enter team name...",
 	className,
-}: {
-	form: any;
-	teams: TTeam[];
-	userTeams: TTeam[];
-	name: string;
-	blocked?: boolean;
-	callback?: (value?: any) => void;
-	placeholder?: string;
-	className?: string;
-}) {
+}: TeamNameInputProps<TFormValues>) {
 	const [open, setOpen] = useState<boolean>(false);
 	const [searchText, setSearchText] = useState<string>("");
 	const inputRef = useRef<HTMLInputElement>(null);

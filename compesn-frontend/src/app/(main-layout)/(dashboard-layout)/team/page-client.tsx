@@ -29,20 +29,24 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import DashboardHeader from "@/components/dashboard-top";
-import { TUserTeam } from "@compesn/shared/common/types/user-team";
 import { useTRPC } from "@/trpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPCMutationForm } from "@/utils/reactTRPCHookForm";
 import { TeamAddPlayerSchema, TeamRegisterSchema } from "@/trpc/routers/teams/teams.schema";
 import Link from "next/link";
+import type { AppRouter } from "@/trpc/routers/_app";
 
 export default function TeamsPageClient({ userId }: { userId: string | undefined }) {
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
 	const { data: teamMemberships = [] } = useQuery(trpc.teams.userTeams.queryOptions());
+	type UserTeamMembership = Awaited<ReturnType<AppRouter["teams"]["userTeams"]>>[number];
+	type TeamListItem = UserTeamMembership["team"] & {
+		currentUserMembership: UserTeamMembership;
+	};
 
 	// Extract teams from team memberships
-	const teams = teamMemberships.map((membership) => ({
+	const teams: TeamListItem[] = teamMemberships.map((membership) => ({
 		...membership.team,
 		currentUserMembership: membership,
 	}));
@@ -82,7 +86,7 @@ export default function TeamsPageClient({ userId }: { userId: string | undefined
 
 	//add player to team
 	const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState<boolean>(false);
-	const [currentTeamToAddPlayer, setCurrentTeamToAddPlayer] = useState<TUserTeam>();
+	const [currentTeamToAddPlayer, setCurrentTeamToAddPlayer] = useState<TeamListItem>();
 	const [loadingAddPlayer, setLoadingAddPlayer] = useState<boolean>(false);
 
 	const addPlayer = useMutation(
@@ -197,7 +201,7 @@ export default function TeamsPageClient({ userId }: { userId: string | undefined
 												<button
 													className="text-primary hover:cursor-pointer"
 													onClick={() => {
-														setCurrentTeamToAddPlayer(team as any);
+														setCurrentTeamToAddPlayer(team);
 														setAddPlayerDialogOpen(true);
 													}}
 												>

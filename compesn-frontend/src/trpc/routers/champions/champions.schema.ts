@@ -1,3 +1,4 @@
+import { ChampionSchema } from "@compesn/shared/types/champion";
 import { z } from "zod";
 
 export const ChampionGetSchema = z.object({
@@ -6,8 +7,7 @@ export const ChampionGetSchema = z.object({
 
 export const ChampionUpdateSchema = z.object({
 	championFileName: z.string(),
-	// Keep flexible to match existing service expectations
-	champion: z.any(),
+	champion: ChampionSchema,
 });
 
 export const ChampionDeleteSchema = z.object({
@@ -15,11 +15,11 @@ export const ChampionDeleteSchema = z.object({
 });
 
 export const ChampionAddSchema = z.object({
-	champion: z.any(), // TChampion type
+	champion: ChampionSchema,
 });
 
 export const ChampionSetSchema = z.object({
-	champions: z.array(z.any()), // TChampion[] type
+	champions: z.array(ChampionSchema),
 });
 
 export const ChampionImgSchema = z.object({

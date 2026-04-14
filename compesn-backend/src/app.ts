@@ -1,11 +1,21 @@
 import express, { Request, Response } from "express";
 import { createServer } from "http";
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import cors from "cors";
 import helmet from "helmet";
 import { handlers } from "@/websockets/event-handlers";
 import { registerPrivateChatHandlers } from "@/websockets/event-handlers/private-chat";
 import { env } from "@/environment";
+import type {
+	CompesnSocketData,
+	DraftClientToServerEvents,
+	DraftServerToClientEvents,
+	NotificationClientToServerEvents,
+	NotificationServerToClientEvents,
+	PrivateChatClientToServerEvents,
+	PrivateChatServerToClientEvents,
+} from "@compesn/shared/types/realtime/socket";
+import type { PrivateChatNamespace } from "@/websockets/socket-types";
 
 const app = express();
 const httpServer = createServer(app);
@@ -38,13 +48,18 @@ export const io = new Server(httpServer, {
 	connectionStateRecovery: {
 		maxDisconnectionDuration: 2 * 60 * 1000,
 	},
-});
+}) as Server<
+	DraftClientToServerEvents & NotificationClientToServerEvents,
+	DraftServerToClientEvents & NotificationServerToClientEvents,
+	Record<string, never>,
+	CompesnSocketData
+>;
 
 // Private chat namespace
-const privateChatIo = io.of("/private-chat");
+const privateChatIo = io.of("/private-chat") as PrivateChatNamespace;
 
 // Draft handlers (default namespace)
-io.on("connection", (socket: Socket) => {
+io.on("connection", (socket) => {
 	handlers.registerRoomHandlers(io, socket);
 	handlers.registerChatHandlers(io, socket);
 	handlers.registerDraftHandlers(io, socket);
@@ -52,7 +67,7 @@ io.on("connection", (socket: Socket) => {
 });
 
 // Private chat handlers (on /private-chat namespace)
-privateChatIo.on("connection", (socket: Socket) => {
+privateChatIo.on("connection", (socket) => {
 	registerPrivateChatHandlers(privateChatIo, socket);
 });
 

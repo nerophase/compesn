@@ -23,6 +23,8 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { CrossReferencedStats } from "./cross-referenced-stats";
 import { matchHistory } from "./match-history-data";
 
+type HistoryMatch = (typeof matchHistory)[number];
+
 export default function History() {
 	// Pagination state
 	const [currentPage, setCurrentPage] = useState(1);
@@ -39,10 +41,12 @@ export default function History() {
 	const [expandedMatch, setExpandedMatch] = useState<number | null>(null);
 
 	// Comparison state
-	const [comparisonSlots, setComparisonSlots] = useState<[any | null, any | null]>([null, null]);
+	const [comparisonSlots, setComparisonSlots] = useState<
+		[HistoryMatch | null, HistoryMatch | null]
+	>([null, null]);
 	const [showingComparison, setShowingComparison] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
-	const [draggedMatch, setDraggedMatch] = useState<any | null>(null);
+	const [draggedMatch, setDraggedMatch] = useState<HistoryMatch | null>(null);
 	const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
 
 	// Horizontal scrolling state for recent matches
@@ -157,14 +161,14 @@ export default function History() {
 	};
 
 	// Comparison functions
-	const addToComparison = (match: any, slotIndex: 0 | 1) => {
-		const newSlots = [...comparisonSlots] as [any | null, any | null];
+	const addToComparison = (match: HistoryMatch, slotIndex: 0 | 1) => {
+		const newSlots = [...comparisonSlots] as [HistoryMatch | null, HistoryMatch | null];
 		newSlots[slotIndex] = match;
 		setComparisonSlots(newSlots);
 	};
 
 	const removeFromComparison = (slotIndex: 0 | 1) => {
-		const newSlots = [...comparisonSlots] as [any | null, any | null];
+		const newSlots = [...comparisonSlots] as [HistoryMatch | null, HistoryMatch | null];
 		newSlots[slotIndex] = null;
 		setComparisonSlots(newSlots);
 	};
@@ -175,7 +179,7 @@ export default function History() {
 	};
 
 	// Drag and drop functions
-	const handleDragStart = (match: any) => {
+	const handleDragStart = (match: HistoryMatch) => {
 		setIsDragging(true);
 		setDraggedMatch(match);
 	};
@@ -298,7 +302,11 @@ export default function History() {
 	};
 
 	// Render match card with minimize/maximize functionality
-	const renderCompactMatchCard = (match: any, index: number, showCompareButton = true) => {
+	const renderCompactMatchCard = (
+		match: HistoryMatch,
+		index: number,
+		showCompareButton = true,
+	) => {
 		const viewMode = getMatchViewMode(match.id.toString());
 
 		return (
@@ -413,7 +421,7 @@ export default function History() {
 									}}
 									disabled={
 										comparisonSlots.includes(match) ||
-										(comparisonSlots[0] && comparisonSlots[1])
+										Boolean(comparisonSlots[0] && comparisonSlots[1])
 									}
 									className="text-xs px-2 py-1 bg-cyan-900/40 text-cyan-300 rounded hover:bg-cyan-800/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 								>
@@ -892,7 +900,7 @@ export default function History() {
 											Champion Matchups
 										</div>
 										{match.blueTeam.players?.map(
-											(bluePlayer: any, i: number) => {
+											(bluePlayer, i: number) => {
 												const roles = ["TOP", "JGL", "MID", "ADC", "SUP"];
 												const redPlayer = match.redTeam.players?.[i];
 
@@ -993,7 +1001,7 @@ export default function History() {
 	};
 
 	// Render horizontal scrollable match card (for recent matches)
-	const renderHorizontalMatchCard = (match: any, index: number) => (
+	const renderHorizontalMatchCard = (match: HistoryMatch, index: number) => (
 		<motion.div
 			key={match.id}
 			initial={{ opacity: 0, x: 20 }}
@@ -1056,7 +1064,7 @@ export default function History() {
 							}}
 							disabled={
 								comparisonSlots.includes(match) ||
-								(comparisonSlots[0] && comparisonSlots[1])
+								Boolean(comparisonSlots[0] && comparisonSlots[1])
 							}
 							className="px-4 py-2 bg-cyan-900/40 text-cyan-300 rounded hover:bg-cyan-800/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 						>
@@ -1262,7 +1270,7 @@ export default function History() {
 								<div className="text-xs text-gray-400 font-medium text-center mb-3">
 									Champion Matchups by Role
 								</div>
-								{match.blueTeam.players.map((bluePlayer: any, i: number) => {
+								{match.blueTeam.players.map((bluePlayer, i: number) => {
 									const roles = ["TOP", "JGL", "MID", "ADC", "SUP"];
 									const roleIcons = ["⚔️", "🌲", "⚡", "🏹", "🛡️"];
 									const redPlayer = match.redTeam.players[i];

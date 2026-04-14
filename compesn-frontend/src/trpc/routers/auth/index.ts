@@ -19,9 +19,9 @@ import { regionToPlatform } from "@/constants/regions";
 import { v4 } from "uuid";
 import { signIn } from "next-auth/react";
 import { env } from "@/environment";
-import { users } from "@compesn/shared/common/schemas/users";
-import { accounts } from "@compesn/shared/common/schemas/accounts";
-import { verifications } from "@compesn/shared/common/schemas/verifications";
+import { users } from "@compesn/shared/schemas/users";
+import { accounts } from "@compesn/shared/schemas/accounts";
+import { verifications } from "@compesn/shared/schemas/verifications";
 
 function generateResetPasswordEmail(userName: string, resetLink: string) {
 	return `
@@ -220,10 +220,15 @@ export const authRouter = createTRPCRouter({
 				email: user.email,
 				region: user.region,
 			};
-		} catch (error: any) {
-			if (error.code === "23505") {
+		} catch (error: unknown) {
+			const databaseError =
+				typeof error === "object" && error !== null
+					? (error as { code?: string; detail?: string; message?: string })
+					: undefined;
+
+			if (databaseError?.code === "23505") {
 				// PostgreSQL unique violation
-				const detail = error.detail || "";
+				const detail = databaseError.detail || "";
 				if (detail.includes("name")) {
 					throw new Error("Username already exists");
 				} else if (detail.includes("email")) {
@@ -231,7 +236,11 @@ export const authRouter = createTRPCRouter({
 				}
 				throw new Error("User with these credentials already exists");
 			}
-			throw new Error(error.message);
+			throw new Error(
+				error instanceof Error
+					? error.message
+					: databaseError?.message || "Failed to create account",
+			);
 		}
 	}),
 

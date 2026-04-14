@@ -3,10 +3,11 @@
 import { Badge } from "@/components/ui/badge";
 import { formatTimeRemaining } from "@/utils/draft-time";
 import { Clock, Users, Wifi, WifiOff } from "lucide-react";
+import type { QueueDraft, QueueDraftSide } from "./draft-types";
 
 interface DraftHeaderProps {
-	draft: any;
-	userTeam: "BLUE" | "RED";
+	draft: QueueDraft;
+	userTeam: QueueDraftSide;
 	isConnected: boolean;
 	timeRemaining: number;
 }

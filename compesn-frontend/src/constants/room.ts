@@ -1,7 +1,7 @@
 // import { IRoomSettings } from "@/interfaces/room";
 
-import { TRoom } from "@compesn/shared/common/types/room";
-import { TSelectOption } from "@compesn/shared/common/types/select-option";
+import { TRoom } from "@compesn/shared/types/room";
+import { TSelectOption } from "@compesn/shared/types/select-option";
 import { RoomSettingsSchema } from "@/trpc/routers/rooms/rooms.schema";
 
 // export const ROOM_DEFAULT_SETTINGS: IRoomSettings = {

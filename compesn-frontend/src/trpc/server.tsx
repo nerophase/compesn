@@ -1,10 +1,9 @@
 import "server-only";
 import { cache, ReactNode } from "react";
 
-import type { TRPCQueryOptions } from "@trpc/tanstack-react-query";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary, type QueryClient } from "@tanstack/react-query";
 
 import { createTRPCContext } from "./init";
 import { makeQueryClient } from "./query-client";
@@ -23,13 +22,18 @@ export function HydrateClient(props: { children: ReactNode }) {
 	return <HydrationBoundary state={dehydrate(queryClient)}>{props.children}</HydrationBoundary>;
 }
 
-export function prefetch<T extends ReturnType<TRPCQueryOptions<any>>>(queryOptions: T) {
-	const queryClient = getQueryClient();
+type QueryOptionsLike = unknown;
+type PrefetchQueryOptions = Parameters<QueryClient["prefetchQuery"]>[0];
+type PrefetchInfiniteQueryOptions = Parameters<QueryClient["prefetchInfiniteQuery"]>[0];
 
-	if (queryOptions.queryKey[1]?.type === "infinite") {
-		void queryClient.prefetchInfiniteQuery(queryOptions as any);
+export function prefetch(queryOptions: QueryOptionsLike) {
+	const queryClient = getQueryClient();
+	const queryKey = (queryOptions as { queryKey?: readonly [unknown, { type?: string }?] }).queryKey;
+
+	if (queryKey?.[1]?.type === "infinite") {
+		void queryClient.prefetchInfiniteQuery(queryOptions as unknown as PrefetchInfiniteQueryOptions);
 	} else {
-		void queryClient.prefetchQuery(queryOptions);
+		void queryClient.prefetchQuery(queryOptions as unknown as PrefetchQueryOptions);
 	}
 }
 
