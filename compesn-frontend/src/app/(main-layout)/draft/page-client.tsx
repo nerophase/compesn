@@ -107,16 +107,16 @@ export default function RoomSettingsPage({}: { room: TRoom | undefined }) {
 						{/* Header */}
 						<div className="text-center space-y-4 mb-12 animate-fade-in">
 							<div className="flex items-center justify-center gap-3 mb-6">
-								<h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent neon-text">
+								<h1 className="text-5xl font-bold bg-linear-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent neon-text">
 									Room Configuration
 								</h1>
 							</div>
-							<div className="h-1 w-32 mx-auto bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full opacity-60" />
+							<div className="h-1 w-32 mx-auto bg-linear-to-r from-cyan-500 to-blue-500 rounded-full opacity-60" />
 						</div>
 
 						{/* Game Settings Card */}
 						<div className="relative group animate-slide-in-up">
-							<div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+							<div className="absolute -inset-0.5 bg-linear-to-r from-cyan-500 to-blue-500 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
 							<div className="relative bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl p-8 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500">
 								<div className="flex items-center gap-3 mb-6">
 									<Sparkles className="w-6 h-6 text-cyan-400" />
@@ -204,7 +204,7 @@ export default function RoomSettingsPage({}: { room: TRoom | undefined }) {
 							className="relative group animate-slide-in-up"
 							style={{ animationDelay: "0.2s" }}
 						>
-							<div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+							<div className="absolute -inset-0.5 bg-linear-to-r from-purple-500 to-pink-500 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
 							<div className="relative bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl p-8 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500">
 								<DisabledChampionSelector
 									form={form}
@@ -221,10 +221,10 @@ export default function RoomSettingsPage({}: { room: TRoom | undefined }) {
 								style={{ animationDelay: "0.4s" }}
 							>
 								<div className="relative group">
-									<div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-xl blur opacity-60 group-hover:opacity-80 transition duration-300" />
+									<div className="absolute -inset-0.5 bg-linear-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-xl blur opacity-60 group-hover:opacity-80 transition duration-300" />
 									<Button
 										type="submit"
-										className="relative bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold  rounded-xl shadow-lg transform transition duration-300 ease-in-out hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+										className="relative bg-linear-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold  rounded-xl shadow-lg transform transition duration-300 ease-in-out hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 										size="lg"
 										disabled={loadingCreateRoom}
 									>
@@ -297,7 +297,7 @@ function DisabledChampionSelector({
 								<Button
 									size="lg"
 									variant="outline"
-									className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-purple-500/30 hover:border-purple-400/50 text-purple-200 hover:text-purple-100 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25"
+									className="bg-linear-to-r from-purple-600/20 to-pink-600/20 border-purple-500/30 hover:border-purple-400/50 text-purple-200 hover:text-purple-100 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25"
 									type="button"
 								>
 									<Plus className="w-5 h-5 mr-2" />
@@ -354,7 +354,7 @@ function DisabledChampionSelector({
 								))}
 							</div>
 						)}
-						<div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-lg pointer-events-none" />
+						<div className="absolute inset-0 bg-linear-to-r from-purple-500/5 to-pink-500/5 rounded-lg pointer-events-none" />
 					</div>
 				</FormItem>
 			)}
@@ -396,7 +396,7 @@ function TeamConfig({
 		>
 			<div
 				className={cn(
-					"absolute -inset-0.5 bg-gradient-to-r rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200",
+					"absolute -inset-0.5 bg-linear-to-r rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200",
 					gradientClass,
 				)}
 			/>
@@ -411,7 +411,7 @@ function TeamConfig({
 					<div className="flex items-center gap-3">
 						<div
 							className={cn(
-								"p-2 rounded-full bg-gradient-to-r backdrop-blur-sm",
+								"p-2 rounded-full bg-linear-to-r backdrop-blur-sm",
 								`${gradientClass
 									.replace("from-", "from-")
 									.replace("to-", "to-")}/20`,
@@ -605,7 +605,7 @@ function GameSettingButtons({
 										className={cn(
 											"relative group px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 border hover:cursor-pointer",
 											isSelected
-												? "bg-gradient-to-r from-cyan-600/80 to-blue-600/80 border-cyan-500/50 text-white shadow-lg shadow-cyan-500/25"
+												? "bg-linear-to-r from-cyan-600/80 to-blue-600/80 border-cyan-500/50 text-white shadow-lg shadow-cyan-500/25"
 												: "bg-slate-800/50 border-white/10 text-slate-300 hover:bg-slate-700/50 hover:border-cyan-500/30 hover:text-cyan-200",
 											blocked && "opacity-50 cursor-not-allowed",
 											!blocked &&
@@ -621,7 +621,7 @@ function GameSettingButtons({
 										<span className="relative z-10">{option.label}</span>
 
 										{isSelected && (
-											<div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg blur opacity-20 -z-10" />
+											<div className="absolute -inset-0.5 bg-linear-to-r from-cyan-500 to-blue-500 rounded-lg blur opacity-20 -z-10" />
 										)}
 									</button>
 								);

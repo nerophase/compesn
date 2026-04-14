@@ -1,5 +1,5 @@
 import useDraft from "@/hooks/use-draft";
-import { getChampionImage } from "@/lib/champions";
+import { getChampionImage } from "@/utils/champions";
 import { cn } from "@/lib/utils";
 import { TDraftTeam } from "@compesn/shared/common/types/draft-team";
 import { TDraftState } from "@compesn/shared/common/types/state";
@@ -37,7 +37,7 @@ export default function DraftTeamData({
 				{/* Team Header */}
 				<div
 					className={cn(
-						"bg-gradient-to-r backdrop-blur-md p-3 border-b",
+						"bg-linear-to-r backdrop-blur-md p-3 border-b",
 						teamColor === "blue"
 							? "from-blue-600/30 to-blue-500/30 border-blue-400/20"
 							: "from-red-600/30 to-red-500/30 border-red-400/20",
@@ -111,7 +111,7 @@ export default function DraftTeamData({
 								<div
 									key={index}
 									className={`bg-gray-800/30 backdrop-blur-md border border-gray-700/30 rounded-lg flex items-center justify-center overflow-hidden transition-all duration-300 ${
-										isBanningPhase ? "aspect-square" : "aspect-[4/3]"
+										isBanningPhase ? "aspect-square" : "aspect-4/3"
 									}`}
 								>
 									{teamData.ban[index] ? (
@@ -165,7 +165,7 @@ export default function DraftTeamData({
 									}`}
 								>
 									<div
-										className={`rounded-lg overflow-hidden flex-shrink-0 transition-all duration-300 ${
+										className={`rounded-lg overflow-hidden shrink-0 transition-all duration-300 ${
 											isPickingPhase ? "w-12 h-12" : "w-8 h-8"
 										} ${
 											teamColor === "blue"

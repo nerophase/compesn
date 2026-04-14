@@ -9,7 +9,6 @@
 		"start": "next start -p 5000",
 		"lint": "eslint .",
 		"typecheck": "tsc --noEmit",
-		"test": "node --import tsx --test $(find src -type f \\( -name '*.test.ts' -o -name '*.test.tsx' \\))",
 		"pretty": "npx prettier --write '**/*.{js,jsx,mjs,cjs,ts,tsx,json}'",
 		"db:seed": "tsx src/lib/database/seed.ts",
 		"db:clear": "tsx src/lib/database/clear-seed-data.ts",

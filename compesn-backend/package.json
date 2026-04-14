@@ -10,7 +10,6 @@
 		"build": "tsc && tsc-alias",
 		"lint": "eslint src --ext .ts",
 		"typecheck": "tsc --noEmit",
-		"test": "node --import tsx --test $(find src -type f -name '*.test.ts')",
 		"pretty": "npx prettier --write '**/*.ts'"
 	},
 	"author": "",

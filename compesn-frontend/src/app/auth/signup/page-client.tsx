@@ -20,8 +20,8 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { FormCombobox } from "@/components/forms/form-combobox";
-import PasswordInput2 from "@/components/forms/password-input2";
+import { FormCombobox } from "@/components/ui/form-combobox";
+import PasswordInput from "@/components/forms/password-input";
 import LoaderSpin from "@/components/loader-spin";
 import { useState } from "react";
 import { useTRPC } from "@/trpc/client";
@@ -231,13 +231,13 @@ export default function SignUpPageClient({
 									</FormItem>
 								)}
 							/>
-							<PasswordInput2
+							<PasswordInput
 								formData={form}
 								name="password"
 								label="Password"
 								placeholder="password"
 							/>
-							<PasswordInput2
+							<PasswordInput
 								formData={form}
 								name="confirmPassword"
 								label="Confirm Password"

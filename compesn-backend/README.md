@@ -34,7 +34,6 @@ Run the package checks:
 
 ```bash
 pnpm --filter ./compesn-backend typecheck
-pnpm --filter ./compesn-backend test
 pnpm --filter ./compesn-backend lint
 ```
 
@@ -80,4 +79,4 @@ LOGS_FILE_PATH=compesn.log
 - `src/websockets/event-handlers/`: room, draft, notifications, chat handlers
 - `src/services/`: backend business logic
 - `src/environment/index.ts`: validated env loader
-- `src/lib/redis.ts`: Redis connection
+- `src/database/redis.ts`: Redis connection

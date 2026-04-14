@@ -5,7 +5,7 @@ import { CHAMPIONS } from "@/constants/champions-db/champions-data";
 import { CheckIcon, SearchIcon, XIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { getChampionImage } from "@/lib/champions";
+import { getChampionImage } from "@/utils/champions";
 import { TDraftTeam } from "@compesn/shared/common/types/draft-team";
 
 // Champion role icons (using emoji for now, can be replaced with proper icons)
@@ -67,7 +67,7 @@ export default function ChampionSelector({
 	return (
 		<div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden h-full">
 			{/* Champion Select Header */}
-			<div className="bg-gradient-to-r from-purple-600/30 to-indigo-600/30 backdrop-blur-md p-3 border-b border-purple-400/20 flex-shrink-0">
+			<div className="bg-linear-to-r from-purple-600/30 to-indigo-600/30 backdrop-blur-md p-3 border-b border-purple-400/20 shrink-0">
 				<div className="flex items-center justify-between h-full overflow-x-auto">
 					{/* <div className="flex items-center gap-2 min-w-fit mr-2">
 						<UsersIcon className="text-purple-400" size={16} />
@@ -174,7 +174,7 @@ export default function ChampionSelector({
 								)}
 
 								{/* Champion Name */}
-								<div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1">
+								<div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent p-1">
 									<div className="text-white text-xs font-medium truncate">
 										{champion.name}
 									</div>

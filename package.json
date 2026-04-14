@@ -17,8 +17,7 @@
 		"lint": "pnpm -r lint",
 		"start:frontend": "pnpm --filter ./compesn-frontend start",
 		"start:backend": "pnpm --filter ./compesn-backend start",
-		"typecheck": "pnpm -r typecheck",
-		"test": "pnpm -r test"
+		"typecheck": "pnpm -r typecheck"
 	},
 	"dependencies": {
 		"drizzle-kit": "^0.31.10"

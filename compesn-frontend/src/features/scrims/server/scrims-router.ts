@@ -1,9 +1,7 @@
 import { createTRPCRouter, authenticatedProcedure, baseProcedure } from "@/trpc/init";
 import {
 	ScrimCreateSchema,
-	ScrimListSchema,
 	ScrimByIdSchema,
-	ScrimUpdateStatusSchema,
 	ScrimRequestSchema,
 	ScrimCancelSchema,
 	ScrimCancelRequestSchema,
@@ -27,10 +25,19 @@ import {
 	TScrim,
 } from "@compesn/shared/common/schemas";
 import { TRPCError } from "@trpc/server";
+import { logError } from "@compesn/shared/logging";
 import { createNotification } from "@/lib/notifications";
 import { redis as redis } from "@/lib/database/redis";
 import { initializeDraftForScrim } from "@/trpc/routers/drafts";
 import { assertValidRankRange } from "./scrim-utils";
+import {
+	canCancelConfirmedScrim,
+	getNextOpponentTeamId,
+	isCreatingTeamOnlyTransition,
+	isValidScrimTransition,
+} from "./scrim-status";
+import { updateStatusProcedure } from "./update-scrim-status-procedure";
+import { listScrimsProcedure } from "./list-scrims-procedure";
 
 export const scrimsRouter = createTRPCRouter({
 	// Create a new scrim
@@ -108,203 +115,16 @@ export const scrimsRouter = createTRPCRouter({
 
 			return createdScrim;
 		} catch (error) {
-			console.error(error);
+			logError("frontend.scrims.create", error, { userId: ctx.session.user.id });
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: "Failed to create scrim",
+			});
 		}
 	}),
 
 	// List scrims with filtering
-	list: baseProcedure.input(ScrimListSchema).query(async ({ input, ctx }) => {
-		try {
-			const currentUserId = ctx.session?.user?.id;
-			// Create cache key based on input parameters
-			const cacheKey = `scrims:list:${JSON.stringify({
-				...input,
-				currentUserId: currentUserId ?? null,
-			})}`;
-
-			// Try to get from cache first
-			const cached = redis ? await redis.get(cacheKey) : null;
-			if (cached) {
-				return JSON.parse(cached);
-			}
-
-			// Build where conditions
-			const conditions = [];
-
-			// Date filters
-			if (input.startDate) {
-				conditions.push(gte(scrims.startTime, input.startDate));
-			}
-			if (input.endDate) {
-				conditions.push(lte(scrims.startTime, input.endDate));
-			}
-
-			// Time filters (HH:MM format)
-			if (input.startTimeFrom) {
-				const [hours, minutes] = input.startTimeFrom.split(":").map(Number);
-				conditions.push(
-					sql`EXTRACT(HOUR FROM ${
-						scrims.startTime
-					}) * 60 + EXTRACT(MINUTE FROM ${scrims.startTime}) >= ${hours * 60 + minutes}`,
-				);
-			}
-			if (input.startTimeTo) {
-				const [hours, minutes] = input.startTimeTo.split(":").map(Number);
-				conditions.push(
-					sql`EXTRACT(HOUR FROM ${
-						scrims.startTime
-					}) * 60 + EXTRACT(MINUTE FROM ${scrims.startTime}) <= ${hours * 60 + minutes}`,
-				);
-			}
-
-			// Status filter
-			if (input.status && input.status.length > 0) {
-				conditions.push(inArray(scrims.status, input.status));
-			}
-
-			// Role filters - check if any of the needed roles match
-			if (input.rolesNeeded && input.rolesNeeded.length > 0) {
-				conditions.push(
-					or(...input.rolesNeeded.map((role) => sql`${scrims.rolesNeeded} ? ${role}`)),
-				);
-			}
-
-			// Rank filters
-			if (input.minRankTier) {
-				conditions.push(gte(scrims.minRankTier, input.minRankTier));
-			}
-
-			if (input.maxRankTier) {
-				conditions.push(lte(scrims.minRankTier, input.maxRankTier));
-			}
-
-			// Region filters (assuming teams have region field)
-			if (input.regions?.length) {
-				conditions.push(
-					exists(
-						db
-							.select({ one: sql`1` })
-							.from(teams)
-							.where(
-								and(
-									eq(teams.id, scrims.creatingTeamId),
-									inArray(teams.region, input.regions),
-								),
-							),
-					),
-				);
-			}
-
-			// Team name filter
-			if (input.teamName?.trim()) {
-				conditions.push(
-					exists(
-						db
-							.select({ one: sql`1` })
-							.from(teams)
-							.where(
-								and(
-									eq(teams.id, scrims.creatingTeamId),
-									ilike(teams.name, `%${input.teamName.trim()}%`),
-								),
-							),
-					),
-				);
-			}
-
-			const priorityCreatingTeam = currentUserId
-				? sql<number>`
-					CASE
-						WHEN ${exists(
-							db
-								.select({ one: sql`1` })
-								.from(teamMembers)
-								.where(
-									and(
-										eq(teamMembers.teamId, scrims.creatingTeamId),
-										eq(teamMembers.userId, currentUserId),
-									),
-								),
-						)}
-						THEN 0
-						ELSE 1
-					END
-				`
-				: sql<number>`1`;
-
-			const priorityOpponentTeam = currentUserId
-				? sql<number>`
-					CASE
-						WHEN ${exists(
-							db
-								.select({ one: sql`1` })
-								.from(teamMembers)
-								.where(
-									and(
-										eq(teamMembers.teamId, scrims.opponentTeamId),
-										eq(teamMembers.userId, currentUserId),
-									),
-								),
-						)}
-						THEN 0
-						ELSE 1
-					END
-				`
-				: sql<number>`1`;
-
-			const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-			const [countRow] = await db.select({ total: count() }).from(scrims).where(whereClause);
-
-			const items = await db.query.scrims.findMany({
-				where: whereClause,
-				with: {
-					creatingTeam: {
-						with: {
-							members: {
-								with: {
-									user: true,
-								},
-							},
-						},
-					},
-					opponentTeam: {
-						with: {
-							members: {
-								with: {
-									user: true,
-								},
-							},
-						},
-					},
-				},
-				orderBy: [
-					priorityCreatingTeam,
-					priorityOpponentTeam,
-					asc(scrims.status),
-					asc(scrims.startTime),
-				],
-				limit: input.limit,
-				offset: input.offset,
-			});
-
-			const result = {
-				items,
-				total: Number(countRow?.total ?? 0),
-				limit: input.limit,
-				offset: input.offset,
-			};
-
-			// Cache the result for 60 seconds
-			if (redis) {
-				await redis.setex(cacheKey, 60, JSON.stringify(result));
-			}
-
-			return result;
-		} catch (error) {
-			console.error(error);
-		}
-	}),
+	list: listScrimsProcedure,
 
 	// Get scrim by ID
 	getById: baseProcedure.input(ScrimByIdSchema).query(async ({ input }) => {
@@ -448,7 +268,11 @@ export const scrimsRouter = createTRPCRouter({
 
 			return updatedScrim;
 		} catch (error) {
-			console.error(error);
+			logError("frontend.scrims.request", error, { userId: ctx.session.user.id });
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: "Failed to request scrim",
+			});
 		}
 	}),
 
@@ -510,204 +334,7 @@ export const scrimsRouter = createTRPCRouter({
 		}),
 
 	// Update scrim status (accept, confirm, cancel)
-	updateStatus: authenticatedProcedure
-		.input(ScrimUpdateStatusSchema)
-		.mutation(async ({ input, ctx }) => {
-			const userId = ctx.session.user.id;
-
-			// Get the scrim with team information
-			const scrim = await db.query.scrims.findFirst({
-				where: eq(scrims.id, input.scrimId),
-				with: {
-					creatingTeam: {
-						with: {
-							members: true,
-						},
-					},
-					opponentTeam: {
-						with: {
-							members: true,
-						},
-					},
-				},
-			});
-
-			if (!scrim) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Scrim not found",
-				});
-			}
-
-			// Check if user is part of either team
-			const isCreatingTeamMember = scrim.creatingTeam.members.some(
-				(m) => m.userId === userId,
-			);
-			const isOpponentTeamMember = scrim.opponentTeam?.members.some(
-				(m) => m.userId === userId,
-			);
-
-			if (!isCreatingTeamMember && !isOpponentTeamMember) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message: "You are not authorized to update this scrim",
-				});
-			}
-
-			// Validate state transitions
-			const currentStatus = scrim.status;
-			const newStatus = input.status;
-
-			// Define valid transitions
-			const validTransitions: Record<string, string[]> = {
-				OPEN: ["CANCELLED"],
-				REQUESTED: ["OPEN", "ACCEPTED", "CANCELLED"],
-				ACCEPTED: ["CONFIRMED", "CANCELLED"],
-				CONFIRMED: ["CANCELLED", "COMPLETED"],
-			};
-
-			if (!validTransitions[currentStatus]?.includes(newStatus)) {
-				throw new TRPCError({
-					code: "BAD_REQUEST",
-					message: `Cannot transition from ${currentStatus} to ${newStatus}`,
-				});
-			}
-
-			// Check specific permissions for each transition
-			if (newStatus === "ACCEPTED" && !isCreatingTeamMember) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message: "Only the creating team can accept requests",
-				});
-			}
-			if (newStatus === "OPEN" && !isCreatingTeamMember) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message: "Only the creating team can deny requests",
-				});
-			}
-
-			// Check cancellation time restrictions (within 2 hours of start)
-			if (newStatus === "CANCELLED") {
-				const hoursUntilStart = (scrim.startTime.getTime() - Date.now()) / (1000 * 60 * 60);
-				if (hoursUntilStart < 2 && currentStatus === "CONFIRMED") {
-					throw new TRPCError({
-						code: "BAD_REQUEST",
-						message: "Cannot cancel a confirmed scrim within 2 hours of start time",
-					});
-				}
-			}
-
-			// For CONFIRMED status, check double-booking again
-			if (newStatus === "CONFIRMED") {
-				const teamsToCheck = [scrim.creatingTeamId];
-				if (scrim.opponentTeamId) {
-					teamsToCheck.push(scrim.opponentTeamId);
-				}
-
-				for (const teamId of teamsToCheck) {
-					const overlappingScrim = await db.query.scrims.findFirst({
-						where: and(
-							or(
-								eq(scrims.creatingTeamId, teamId),
-								eq(scrims.opponentTeamId, teamId),
-							),
-							eq(scrims.status, "CONFIRMED"),
-							sql`${scrims.id} != ${input.scrimId}`,
-							// Check for time overlap
-							and(
-								lte(
-									scrims.startTime,
-									new Date(
-										scrim.startTime.getTime() + scrim.durationMinutes * 60000,
-									),
-								),
-								gte(
-									sql`${scrims.startTime} + INTERVAL '1 minute' * ${scrims.durationMinutes}`,
-									scrim.startTime,
-								),
-							),
-						),
-					});
-
-					if (overlappingScrim) {
-						throw new TRPCError({
-							code: "CONFLICT",
-							message:
-								"One of the teams already has a confirmed scrim during this time period",
-						});
-					}
-				}
-			}
-
-			// Update the scrim
-			const [updatedScrim] = await db
-				.update(scrims)
-				.set({
-					status: newStatus,
-					// When a request is denied, return the scrim to OPEN and clear the requester.
-					opponentTeamId: newStatus === "OPEN" ? null : scrim.opponentTeamId,
-				})
-				.where(eq(scrims.id, input.scrimId))
-				.returning();
-
-			// Send notifications based on status change
-			if (newStatus === "ACCEPTED" && scrim.opponentTeam) {
-				await createNotification({
-					userId: scrim.opponentTeam.members[0]?.userId || "",
-					type: "SCRIM_ACCEPTED",
-					title: "Scrim Request Accepted",
-					message: `${scrim.creatingTeam.name} has accepted your scrim request`,
-					data: { scrimId: input.scrimId },
-				});
-			}
-
-			if (newStatus === "CONFIRMED") {
-				// Initialize draft for the confirmed scrim
-				try {
-					await initializeDraftForScrim(input.scrimId);
-				} catch (error) {
-					console.error("Failed to initialize draft for scrim:", error);
-					// Don't fail the scrim confirmation if draft initialization fails
-				}
-
-				// Notify both teams
-				const notifications = [];
-
-				if (isCreatingTeamMember && scrim.opponentTeam) {
-					notifications.push(
-						createNotification({
-							userId: scrim.opponentTeam.members[0]?.userId || "",
-							type: "SCRIM_CONFIRMED",
-							title: "Scrim Confirmed",
-							message: `Your scrim with ${scrim.creatingTeam.name} has been confirmed`,
-							data: { scrimId: input.scrimId },
-						}),
-					);
-				}
-
-				if (isOpponentTeamMember) {
-					notifications.push(
-						createNotification({
-							userId: scrim.creatingTeam.members[0]?.userId || "",
-							type: "SCRIM_CONFIRMED",
-							title: "Scrim Confirmed",
-							message: `Your scrim with ${scrim.opponentTeam?.name} has been confirmed`,
-							data: { scrimId: input.scrimId },
-						}),
-					);
-				}
-
-				await Promise.all(notifications);
-			}
-
-			// Clear cache
-			if (redis) {
-				await redis.del("scrims:list:*");
-			}
-
-			return updatedScrim;
-		}),
+	updateStatus: updateStatusProcedure,
 
 	// Cancel a scrim with reason
 	cancel: authenticatedProcedure

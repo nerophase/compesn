@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { TTeamColor } from "@compesn/shared/common/types/team-color";
 import { HistoryIcon } from "lucide-react";
 import Image from "next/image";
-import { getChampionImage } from "@/lib/champions";
+import { getChampionImage } from "@/utils/champions";
 import { TDraft } from "@compesn/shared/common/types/draft";
 
 export default function DraftTeamHistory({
@@ -26,7 +26,7 @@ export default function DraftTeamHistory({
 			>
 				<div
 					className={cn(
-						"bg-gradient-to-r backdrop-blur-md p-2 border-b ",
+						"bg-linear-to-r backdrop-blur-md p-2 border-b ",
 						teamColor === "blue"
 							? "from-blue-600/30 to-blue-500/30 border-blue-400/20"
 							: "from-red-600/30 to-red-500/30 border-red-400/20",
@@ -63,7 +63,7 @@ export default function DraftTeamHistory({
 											key={index}
 											className="bg-gray-800/30 backdrop-blur-md border border-gray-700/30 rounded-md p-1 flex items-center gap-2"
 										>
-											<div className="w-5 h-5 rounded overflow-hidden flex-shrink-0 bg-background">
+											<div className="w-5 h-5 rounded overflow-hidden shrink-0 bg-background">
 												{champion && champion.fileName && (
 													<Image
 														src={getChampionImage(

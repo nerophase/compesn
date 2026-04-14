@@ -1,9 +1,11 @@
 import { Resend } from "resend";
+import { env } from "@/environment";
+import { logError } from "@compesn/shared/logging";
 
-const resend = new Resend(process.env.RESEND_KEY);
+const resend = new Resend(env.RESEND_KEY);
 
 export async function sendEmail(to: string, subject: string, html: string) {
-	const { data, error } = await resend.emails.send({
+	const { error } = await resend.emails.send({
 		from: "COMPESN <noreply@compesn.com>",
 		to,
 		subject,
@@ -11,10 +13,9 @@ export async function sendEmail(to: string, subject: string, html: string) {
 	});
 
 	if (error) {
+		logError("backend.resend.send", error, { to, subject });
 		return false;
-		// return console.error({ error });
 	}
 
 	return true;
-	// console.log({ data });
 }

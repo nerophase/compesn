@@ -1,16 +1,18 @@
 import nodemailer from "nodemailer";
+import { logError } from "@compesn/shared/logging";
+import { env } from "@/environment";
 
 export async function sendMail(toEmail: string, subject: string, htmlTemplate: string) {
 	const transporter = nodemailer.createTransport({
 		service: "gmail",
 		auth: {
-			user: process.env.NODEMAILER_EMAIL,
-			pass: process.env.NODEMAILER_PW,
+			user: env.NODEMAILER_EMAIL,
+			pass: env.NODEMAILER_PW,
 		},
 	});
 
 	const mailOptions = {
-		from: process.env.NODEMAILER_EMAIL,
+		from: env.NODEMAILER_EMAIL,
 		to: toEmail,
 		subject: subject,
 		html: htmlTemplate,
@@ -19,7 +21,8 @@ export async function sendMail(toEmail: string, subject: string, htmlTemplate: s
 	try {
 		await transporter.sendMail(mailOptions);
 		return true;
-	} catch (error: any) {
-		console.error("Error sending email: ", error.message);
+	} catch (error) {
+		logError("backend.mail.send", error, { toEmail, subject });
+		return false;
 	}
 }

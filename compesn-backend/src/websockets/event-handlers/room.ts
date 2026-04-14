@@ -4,6 +4,7 @@ import { TRoomMember } from "@compesn/shared/common/types/room-member";
 import { getTeam } from "@/utils";
 import { generateId } from "@/utils/password";
 import { draftRoomChannel, draftTeamChannel } from "@/utils/socket-rooms";
+import { findRoomMemberBySocketId, requireRoomById } from "@/websockets/guards/room-context";
 
 export const registerRoomHandlers = (io: Server, socket: Socket) => {
 	socket.on("room:join-room", ({ roomId }) => {
@@ -24,10 +25,8 @@ export const registerRoomHandlers = (io: Server, socket: Socket) => {
 	socket.on(
 		"room:join-team",
 		async ({ roomId, teamId, userId, name, isGuest, autoJoin }: any) => {
-			const room = await roomService.getRoomById(roomId);
-
+			const room = await requireRoomById(socket, roomId, "error:joining-room");
 			if (!room) {
-				socket.emit("error:joining-room", "Wrong room id.");
 				return;
 			}
 
@@ -134,9 +133,8 @@ export const registerRoomHandlers = (io: Server, socket: Socket) => {
 	socket.on("disconnecting", async () => {
 		const roomId = socket.data.draftRoomId;
 		if (roomId) {
-			const room = await roomService.getRoomById(roomId);
-
-			const member = room?.members.find((roomMember: TRoomMember) => roomMember.socketId === socket.id);
+			const room = await requireRoomById(socket, roomId);
+			const member = room ? findRoomMemberBySocketId(room, socket.id) : undefined;
 
 			if (!room || !member) return;
 

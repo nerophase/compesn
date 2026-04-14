@@ -1,5 +1,6 @@
 import { env } from "@/environment";
 import fs from "fs";
+import { logError } from "@compesn/shared/logging";
 
 export const compesnLog = (text: string) => {
 	try {
@@ -13,6 +14,6 @@ export const compesnLog = (text: string) => {
 		})}] ${text}\n`;
 		fs.appendFileSync(env.LOGS_FILE_PATH, log);
 	} catch (error) {
-		console.error(error);
+		logError("backend.logs.append", error, { path: env.LOGS_FILE_PATH });
 	}
 };

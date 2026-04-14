@@ -15,7 +15,7 @@ import { useDraftData } from "@/hooks/use-draft-data";
 import { TTeamColor } from "@compesn/shared/common/types/team-color";
 import { TChampionList } from "@compesn/shared/common/types/champion-list";
 import { TRoom } from "@compesn/shared/common/types/room";
-import { addChampion } from "@/lib/champions";
+import { addChampion } from "@/utils/champions";
 import LoaderSpin from "@/components/loader-spin";
 import { DraftContext } from "@/context/draft-context";
 import JoinRoomModal from "@/components/join-room-modal";
@@ -323,7 +323,7 @@ export default function Draft() {
 							flex flex-col overflow-hidden
 							h-72 max-h-[40%] shrink-0"
 							>
-								<div className="bg-gradient-to-r from-emerald-600/30 to-teal-600/30 backdrop-blur-md p-2 border-b border-emerald-400/20 flex-shrink-0">
+								<div className="bg-linear-to-r from-emerald-600/30 to-teal-600/30 backdrop-blur-md p-2 border-b border-emerald-400/20 shrink-0">
 									<div className="flex items-center justify-between">
 										<div className="flex items-center gap-1">
 											{activeTab === "chat" && (
@@ -438,7 +438,7 @@ export default function Draft() {
 										onClick={() => setMatchAction("same_side")}
 										className={`w-full p-3 rounded-xl text-sm font-medium transition-all duration-200 ${
 											matchAction === "same_side"
-												? "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg"
+												? "bg-linear-to-r from-green-500 to-emerald-600 text-white shadow-lg"
 												: "bg-gray-800/50 hover:bg-gray-700/50 text-gray-300 hover:text-white border border-gray-600/30"
 										}`}
 									>
@@ -451,7 +451,7 @@ export default function Draft() {
 										onClick={() => setMatchAction("switch_side")}
 										className={`w-full p-3 rounded-xl text-sm font-medium transition-all duration-200 ${
 											matchAction === "switch_side"
-												? "bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg"
+												? "bg-linear-to-r from-blue-500 to-cyan-600 text-white shadow-lg"
 												: "bg-gray-800/50 hover:bg-gray-700/50 text-gray-300 hover:text-white border border-gray-600/30"
 										}`}
 									>

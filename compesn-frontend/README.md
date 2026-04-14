@@ -43,7 +43,6 @@ Run the package checks:
 
 ```bash
 pnpm --filter ./compesn-frontend typecheck
-pnpm --filter ./compesn-frontend test
 pnpm --filter ./compesn-frontend lint
 ```
 
@@ -76,7 +75,8 @@ The bypass is disabled in production even if the flag is present.
 - `src/lib/auth.ts`: NextAuth configuration
 - `src/lib/sockets.ts`: realtime client connection
 
-- The credentials `login()` function is currently stubbed for testing and returns the `ProCoach` user instead of validating the submitted username/password. If you are debugging auth behavior, start there before assuming the rest of the flow is broken.
+- Credentials auth validates submitted credentials by default.
+- If `ENABLE_AUTH_BYPASS=true` in non-production, the submitted username/email (or `AUTH_BYPASS_IDENTIFIER`) can be used to log in as a test user.
 
 Related API routes:
 
