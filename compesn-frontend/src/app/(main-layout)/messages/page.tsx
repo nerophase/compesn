@@ -389,6 +389,11 @@ export default function MessagesPage() {
 								<div className="space-y-1 p-4">
 									{conversationsList.map((conversation) => {
 										const Icon = getConversationIcon(conversation.kind);
+										const lastMessage = conversation.lastMessage;
+										const hasUnreadIncomingMessage =
+											!!lastMessage &&
+											!lastMessage.isRead &&
+											lastMessage.senderId !== currentUser?.id;
 
 										return (
 											<div
@@ -418,11 +423,7 @@ export default function MessagesPage() {
 																>
 																	{conversation.kindLabel}
 																</Badge>
-																{!conversation?.lastMessage
-																	?.isRead &&
-																	conversation.lastMessage
-																		.senderId !==
-																		currentUser?.id && (
+																{hasUnreadIncomingMessage && (
 																	<Badge className="bg-cyan-600 text-xs">
 																		New
 																	</Badge>
@@ -431,21 +432,14 @@ export default function MessagesPage() {
 														</div>
 
 														<div className="flex justify-between items-center gap-2">
-															{conversation.lastMessage && (
+															{lastMessage && (
 																<p className="text-sm text-gray-400 truncate mt-1">
-																	{
-																		conversation.lastMessage
-																			.content
-																	}
+																	{lastMessage.content}
 																</p>
 															)}
-															{conversation.lastMessage && (
+															{lastMessage && (
 																<span className="text-xs text-gray-500 min-w-fit">
-																	{getTimeAgo(
-																		conversation.lastMessage
-																			.createdAt,
-																		now,
-																	)}
+																	{getTimeAgo(lastMessage.createdAt, now)}
 																</span>
 															)}
 														</div>
