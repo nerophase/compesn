@@ -2,6 +2,7 @@ import "server-only";
 import { env } from "@/environment";
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { TRegion } from "@/trpc/routers/teams/teams.schema";
+import type { Match } from "@compesn/shared/types/riot-api";
 
 // Riot API regional routing
 export const RIOT_ACCOUNT_REGIONS = {
@@ -24,6 +25,8 @@ export const RIOT_PLATFORM_REGIONS: Record<string, string> = {
 	oce: "https://oc1.api.riotgames.com",
 	tr: "https://tr1.api.riotgames.com",
 	ru: "https://ru.api.riotgames.com",
+	me: "https://me1.api.riotgames.com",
+	pbe: "https://pbe1.api.riotgames.com",
 	ph: "https://ph2.api.riotgames.com",
 	sg: "https://sg2.api.riotgames.com",
 	th: "https://th2.api.riotgames.com",
@@ -38,17 +41,19 @@ export const PLATFORM_TO_REGION: Record<string, keyof typeof RIOT_ACCOUNT_REGION
 	lan: "americas",
 	las: "americas",
 	oce: "americas",
+	pbe: "americas",
 	jp: "asia",
 	kr: "asia",
-	ph: "asia",
-	sg: "asia",
-	th: "asia",
-	tw: "asia",
-	vn: "asia",
+	ph: "sea",
+	sg: "sea",
+	th: "sea",
+	tw: "sea",
+	vn: "sea",
 	euw: "europe",
 	eune: "europe",
 	tr: "europe",
 	ru: "europe",
+	me: "europe",
 };
 
 export interface RiotAccount {
@@ -58,10 +63,10 @@ export interface RiotAccount {
 }
 
 export interface Summoner {
-	id: string;
-	accountId: string;
+	id?: string;
+	accountId?: string;
 	puuid: string;
-	name: string;
+	name?: string;
 	profileIconId: number;
 	revisionDate: number;
 	summonerLevel: number;
@@ -82,36 +87,19 @@ export interface LeagueEntry {
 	hotStreak: boolean;
 }
 
-export interface MatchDetails {
-	id: string;
-	info: {
-		queueId: number;
-		participants: {
-			puuid: string;
-			totalMinionsKilled: number;
-			neutralMinionsKilled: number;
-			deaths: number;
-			kills: number;
-			assists: number;
-			championId: string;
-			win: boolean;
-			visionScore: number;
-			goldEarned: number;
-			totalDamageDealtToChampions: number;
-			totalDamageDealt: number;
-			wardsPlaced: number;
-			wardsKilled: number;
-			role: string;
-			lane: string;
-			teamPosition: string;
-			summonerName: string;
-			riotIdGameName: string;
-			riotIdTagLine: string;
-		}[];
-		gameCreation: string; // Date
-		gameDuration: number;
-	};
+export interface ChampionMastery {
+	puuid: string;
+	championId: number;
+	championLevel: number;
+	championPoints: number;
+	lastPlayTime: number;
+	championPointsSinceLastLevel: number;
+	championPointsUntilNextLevel: number;
+	chestGranted: boolean;
+	tokensEarned: number;
 }
+
+export type MatchDetails = Match;
 
 type RiotRequestParams = Record<string, number>;
 
@@ -165,6 +153,19 @@ export class RiotApiService {
 			return response.data;
 		} catch (error: unknown) {
 			console.error("Error fetching ranked stats:", getAxiosErrorMessage(error));
+			return [];
+		}
+	}
+
+	async getLeagueEntriesByPuuid(puuid: string, platform: string): Promise<LeagueEntry[]> {
+		try {
+			const baseUrl = this.getPlatformUrl(platform);
+			const response = await this.accountClient.get<LeagueEntry[]>(
+				`${baseUrl}/lol/league/v4/entries/by-puuid/${puuid}`,
+			);
+			return response.data;
+		} catch (error: unknown) {
+			console.error("Error fetching ranked stats by PUUID:", getAxiosErrorMessage(error));
 			return [];
 		}
 	}
@@ -275,6 +276,22 @@ export class RiotApiService {
 		}
 	}
 
+	async getChampionMasteriesByPuuid(
+		puuid: string,
+		region: string = "na",
+	): Promise<ChampionMastery[]> {
+		try {
+			const baseUrl = this.getPlatformUrl(region);
+			const response = await this.accountClient.get<ChampionMastery[]>(
+				`${baseUrl}/lol/champion-mastery/v4/champion-masteries/by-puuid/${puuid}`,
+			);
+			return response.data;
+		} catch (error: unknown) {
+			console.error("Error fetching champion masteries:", getAxiosErrorMessage(error));
+			throw error;
+		}
+	}
+
 	/**
 	 * Get match IDs for a player
 	 */
@@ -336,7 +353,7 @@ export class RiotApiService {
 		}
 
 		// Get ranked stats
-		const rankedStats = await this.getRankedStats(summoner.id, region);
+		const rankedStats = await this.getLeagueEntriesByPuuid(account.puuid, region);
 
 		// Get solo queue rank
 		const soloQueue = rankedStats.find((entry) => entry.queueType === "RANKED_SOLO_5x5");

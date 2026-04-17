@@ -16,6 +16,8 @@ const PROTECTED_ROUTES = [
 	"/accounts",
 	"/draft",
 	"/history",
+	"/game-result",
+	"/player-search",
 ];
 
 // Routes that should be excluded from protection

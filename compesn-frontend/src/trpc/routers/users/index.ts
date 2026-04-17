@@ -90,7 +90,10 @@ export const usersRouter = createTRPCRouter({
 						.returning()
 				)[0];
 			} catch (e: unknown) {
-				const dbError = e as { cause?: { code?: string; detail?: string }; message?: string };
+				const dbError = e as {
+					cause?: { code?: string; detail?: string };
+					message?: string;
+				};
 				if (dbError.cause?.code === "23505") {
 					const fieldMatch = dbError.cause.detail?.match(/\((.*?)\)=/);
 					const field = fieldMatch ? fieldMatch[1] : "field";
@@ -301,24 +304,26 @@ export const usersRouter = createTRPCRouter({
 					}
 
 					// Fetch summoner profile
-						const summonerData = await riotAPICache.getSummonerByPuuid(puuid, region);
+					const summonerData = await riotAPICache.getSummonerByPuuid(puuid, region);
+					const summonerId = summonerData?.id ?? puuid;
+					const accountId = summonerData?.accountId ?? puuid;
 
 					// Upsert summoner profile
 					await tx
 						.insert(summonerProfiles)
 						.values({
 							puuid,
-							summonerId: summonerData!.id,
-							accountId: summonerData!.accountId,
+							summonerId,
+							accountId,
 							profileIconId: summonerData!.profileIconId,
 							summonerLevel: summonerData!.summonerLevel,
-								region,
+							region,
 						})
 						.onConflictDoUpdate({
 							target: summonerProfiles.puuid,
 							set: {
-								summonerId: summonerData!.id,
-								accountId: summonerData!.accountId,
+								summonerId,
+								accountId,
 								profileIconId: summonerData!.profileIconId,
 								summonerLevel: summonerData!.summonerLevel,
 								updatedAt: new Date(),
@@ -326,10 +331,7 @@ export const usersRouter = createTRPCRouter({
 						});
 
 					// Fetch and upsert ranked stats
-						const leagueEntries = await riotAPICache.getLeagueEntriesBySummonerId(
-							summonerData!.id,
-							region,
-						);
+					const leagueEntries = await riotAPICache.getLeagueEntriesByPuuid(puuid, region);
 
 					// Delete existing ranked stats for this user
 					await tx.delete(rankedStats).where(eq(rankedStats.puuid, puuid));
@@ -376,7 +378,9 @@ export const usersRouter = createTRPCRouter({
 							);
 
 							// Find participant data for this user
-							const participant = matchDetail.info.participants.find((p) => p.puuid === puuid);
+							const participant = matchDetail.info.participants.find(
+								(p) => p.puuid === puuid,
+							);
 
 							if (!participant) return null;
 
@@ -598,7 +602,9 @@ export const usersRouter = createTRPCRouter({
 					}
 
 					// Find participant data for this user
-					const participant = matchDetail.info.participants.find((p) => p.puuid === puuid);
+					const participant = matchDetail.info.participants.find(
+						(p) => p.puuid === puuid,
+					);
 
 					if (!participant) return null;
 

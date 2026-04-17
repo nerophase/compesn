@@ -12,6 +12,8 @@ import { messagesRouter } from "./messages";
 import { searchRouter } from "./search";
 import { statsRouter } from "./stats";
 import { friendsRouter } from "./friends";
+import { matchesRouter } from "./matches";
+import { playersRouter } from "./players";
 
 // Mount all routers here
 export const appRouter = createTRPCRouter({
@@ -28,6 +30,8 @@ export const appRouter = createTRPCRouter({
 	search: searchRouter,
 	stats: statsRouter,
 	friends: friendsRouter,
+	matches: matchesRouter,
+	players: playersRouter,
 });
 
 export type AppRouter = typeof appRouter;

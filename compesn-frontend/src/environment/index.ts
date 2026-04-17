@@ -70,6 +70,8 @@ export const ROUTES = {
 		accounts: "/accounts",
 		accountLink: "/account/link",
 		adminChampions: "/admin/champions",
+		gameResult: "/game-result",
+		playerSearch: "/player-search",
 		confirmJoinTeam: "/manageTeams/confirmJoinTeam",
 		home: "/",
 		termsOfService: "/terms-of-service",

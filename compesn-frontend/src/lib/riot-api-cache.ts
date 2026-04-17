@@ -1,5 +1,12 @@
 import { redis } from "@/lib/database/redis";
-import { RiotApiService, RiotAccount, LeagueEntry, Summoner, MatchDetails } from "./riot-api";
+import {
+	RiotApiService,
+	RiotAccount,
+	LeagueEntry,
+	Summoner,
+	MatchDetails,
+	ChampionMastery,
+} from "./riot-api";
 import { TPlatform } from "@/constants/regions";
 import { TSummonerProfile } from "@compesn/shared/schemas";
 import { TRegion } from "@/trpc/routers/teams/teams.schema";
@@ -9,6 +16,7 @@ const CACHE_TTL = {
 	ACCOUNT: 24 * 60 * 60, // 24 hours
 	SUMMONER: 24 * 60 * 60, // 24 hours
 	LEAGUE: 60 * 60, // 1 hour
+	MASTERY: 60 * 60, // 1 hour
 	MATCH_LIST: 15 * 60, // 15 minutes
 	MATCH_DETAIL: -1, // Indefinite (no expiration)
 } as const;
@@ -25,6 +33,8 @@ const CACHE_KEYS = {
 		`riot:account:v1:${region}:${gameName.toLowerCase()}:${tagLine.toLowerCase()}`,
 	summoner: (puuid: string, region: TRegion) => `riot:summoner:v4:${region}:${puuid}`,
 	league: (summonerId: string, region: TRegion) => `riot:league:v4:${region}:${summonerId}`,
+	leagueByPuuid: (puuid: string, region: TRegion) => `riot:league:v4:puuid:${region}:${puuid}`,
+	mastery: (puuid: string, region: TRegion) => `riot:mastery:v4:${region}:${puuid}`,
 	matchList: (puuid: string, region: TRegion, count: number, start: number) =>
 		`riot:match:v5:list:${region}:${puuid}:${start}:${count}`,
 	matchDetail: (matchId: string, region: TRegion) => `riot:match:v5:detail:${region}:${matchId}`,
@@ -179,6 +189,39 @@ export class RiotAPICacheService {
 		// Cache miss - fetch from API
 		const data = await this.riotAPI.getLeagueEntriesBySummonerId(summonerId, region);
 		await this.setCache(key, data, CACHE_TTL.LEAGUE);
+		return data;
+	}
+
+	async getLeagueEntriesByPuuid(puuid: string, region: TRegion): Promise<LeagueEntry[]> {
+		const key = CACHE_KEYS.leagueByPuuid(puuid, region);
+		const cached = await this.getFromCache<LeagueEntry[]>(key);
+
+		if (cached) {
+			if (this.isStale(cached, STALE_THRESHOLD.LEAGUE)) {
+				this.refreshInBackground(
+					key,
+					() => this.riotAPI.getLeagueEntriesByPuuid(puuid, region),
+					CACHE_TTL.LEAGUE,
+				);
+			}
+			return cached.data;
+		}
+
+		const data = await this.riotAPI.getLeagueEntriesByPuuid(puuid, region);
+		await this.setCache(key, data, CACHE_TTL.LEAGUE);
+		return data;
+	}
+
+	async getChampionMasteriesByPuuid(puuid: string, region: TRegion): Promise<ChampionMastery[]> {
+		const key = CACHE_KEYS.mastery(puuid, region);
+		const cached = await this.getFromCache<ChampionMastery[]>(key);
+
+		if (cached) {
+			return cached.data;
+		}
+
+		const data = await this.riotAPI.getChampionMasteriesByPuuid(puuid, region);
+		await this.setCache(key, data, CACHE_TTL.MASTERY);
 		return data;
 	}
 

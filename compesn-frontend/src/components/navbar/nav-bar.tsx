@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import UserNav from "./user-nav";
 import { usePathname } from "next/navigation";
 import { GlobalSearchBar } from "@/components/global-search-bar";
+import { ROUTES } from "@/environment";
 
 // Custom NavLink component with advanced hover effects
 const NavLink = ({ href, label, isActive }: { href: string; label: string; isActive: boolean }) => {
@@ -71,6 +72,12 @@ export default function Navbar() {
 				break;
 			case "/history":
 				setActiveLink("History");
+				break;
+			case "/game-result":
+				setActiveLink("Results");
+				break;
+			case "/player-search":
+				setActiveLink("Players");
 				break;
 			case "/profile":
 				setActiveLink("Profile");
@@ -143,6 +150,16 @@ export default function Navbar() {
 			label: "History",
 			href: "/history",
 			icon: <span className="text-cyan-500/80">⌚</span>,
+		},
+		{
+			label: "Players",
+			href: ROUTES.client.playerSearch,
+			icon: <span className="text-cyan-500/80">P</span>,
+		},
+		{
+			label: "Results",
+			href: ROUTES.client.gameResult,
+			icon: <span className="text-cyan-500/80">◎</span>,
 		},
 	];
 
