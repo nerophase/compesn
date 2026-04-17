@@ -190,7 +190,7 @@ function TeamPanel({ team }: { team: MatchTeamSummary }) {
 
 	return (
 		<section
-			className={`relative overflow-hidden rounded-lg border ${theme.border} bg-gradient-to-br ${theme.panel}`}
+			className={`relative overflow-hidden rounded-lg border ${theme.border} bg-linear-to-br ${theme.panel}`}
 		>
 			<div className={`absolute left-0 top-0 h-full w-1 ${theme.line}`} />
 			<div className="border-b border-white/10 p-5">
@@ -279,7 +279,7 @@ function ResultSummary({ match }: { match: MatchLookupResponse }) {
 	return (
 		<div className="space-y-6">
 			<section className="rounded-lg border border-cyan-300/25 bg-slate-950/70 shadow-[0_0_32px_rgba(34,211,238,0.12)]">
-				<div className="border-b border-cyan-300/15 bg-gradient-to-r from-cyan-500/15 via-slate-900/20 to-rose-500/15 p-5">
+				<div className="border-b border-cyan-300/15 bg-linear-to-r from-cyan-500/15 via-slate-900/20 to-rose-500/15 p-5">
 					<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 						<div className="min-w-0">
 							<div className="flex flex-wrap items-center gap-2 text-xs uppercase text-cyan-300">
@@ -386,7 +386,7 @@ export default function GameResultPageClient() {
 			<div className="mx-auto max-w-7xl">
 				<section className="mb-6 overflow-hidden rounded-lg border border-cyan-300/20 bg-slate-950/55 shadow-[0_0_40px_rgba(0,0,0,0.35)]">
 					<div className="relative p-5 sm:p-7">
-						<div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/80 to-transparent" />
+						<div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/80 to-transparent" />
 						<div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(360px,520px)] lg:items-end">
 							<div>
 								<div className="inline-flex items-center gap-2 rounded-md border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-xs font-semibold uppercase text-cyan-200">
