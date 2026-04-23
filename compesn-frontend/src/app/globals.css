@@ -141,7 +141,7 @@ body {
 
 /* Gaming UI card style */
 .gaming-card {
-	@apply rounded-md bg-gray-900/60 backdrop-blur-sm border  
+	@apply rounded-md bg-gray-900/60 backdrop-blur-sm border
   transition-all duration-300 overflow-hidden relative;
 	box-shadow: var(--card-shadow);
 }
@@ -154,7 +154,7 @@ body {
 }
 
 .gaming-card-header {
-	@apply bg-gradient-to-r from-cyan-500/80 to-blue-600/80 flex items-center px-6 relative;
+	@apply bg-linear-to-r from-cyan-500/80 to-blue-600/80 flex items-center px-6 relative;
 }
 
 .gaming-card-header::before {
@@ -169,7 +169,7 @@ body {
 
 /* Cyber buttons */
 .cyber-button-primary {
-	@apply bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 
+	@apply bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500
   text-white font-medium rounded-md transition-all duration-300 transform hover:scale-105;
 	box-shadow: 0 0 20px rgba(96, 204, 247, 0.3);
 }
@@ -179,7 +179,7 @@ body {
 }
 
 .cyber-button-secondary {
-	@apply bg-transparent border border-cyan-500/50 hover:border-cyan-400 
+	@apply bg-transparent border border-cyan-500/50 hover:border-cyan-400
   text-cyan-300 font-medium rounded-md transition-all duration-300 transform hover:scale-105;
 	box-shadow: 0 0 5px rgba(96, 204, 247, 0.1);
 }
@@ -338,7 +338,7 @@ body {
 }
 
 .page-container {
-	@apply h-screen bg-gradient-to-b from-[#070B14] via-[#0E1420] to-[#151F2E] text-white overflow-y-scroll overflow-x-hidden;
+	@apply h-screen bg-linear-to-b from-[#070B14] via-[#0E1420] to-[#151F2E] text-white overflow-y-scroll overflow-x-hidden;
 }
 
 .justify-safe {
